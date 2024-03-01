@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="Chip Tang">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="icon" type="image/jpg" href="img/favicon.jpg">
+        <title>GeoHealth - Dashboard</title>
+    </head>
+    <body>
+        <header>
+            <div class="topnav">
+                <a href="index.html"><img src="img/icon.png" alt="Favicon" class="favicon"></a>
+                <a href="index.html">GeoHealth</a>
+                <a href="about.html">About</a>
+                <a href="feedback.html">Feedback</a>
+                <a href="team.html">Team</a>
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <div class="sidebar">
+                    <img src="img/icon.png" alt="Favicon" class="favicon">
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#viral-detection">Viral Detection</a>
+                    <a href="#other-contaminants">Other Contaminants</a>
+                    <a href="#map">Map</a>
+                    <a href="#statistics">Statistics</a>
+                    <a href="#resources">Resources</a>
+                </div>
+            </section>
+            <!-- use js to unhide/ hide other sections-->
+            <!-- everything but dashboard is hidden by default-->
+
+            <section id="dashboard">
+                <article id="viral_detection">
+                    <div>
+                        <h1>Viral Wastewater Detection</h1>
+                        <img src="img/placeholder.png" alt="placeholder">
+                    </div>
+                    <div>
+                        <p>Wastewater detection of viruses involves testing sewage for traces of viruses shed by people. It's important because it provides an early indication of viral outbreaks in communities, and can inform you when to be extra careful.</p>
+                    </div>
+                    <div id="viral_detection_graphs">
+                        <div>
+                            <strong><h2>placeholder disease</h2></strong><p>detection</p>
+                            <img src="img/placeholder.png" alt="placeholder">
+                        </div>
+                        <!-- add more graphs here with JS-->
+                    </div>
+                </article>
+
+                <article id="other_detection">
+                    <div>
+                        <h1>Other Wastewater Contaminants</h1>
+                        <img src="img/placeholder.png" alt="placeholder">
+                    </div>
+                    <div>
+                        <p>Other wastewater contaminants may include fungi, bacteria, and hazardous substances. Illicit substance detection in wastewater can inform public health officials about substance abuse trends and facilitate targeted interventions to address these issues effectively.</p>
+                    </div>
+                    <div id="other_detection_graphs">
+                        <div>
+                            <strong><h2>placeholder disease</h2></strong><p>detection</p>
+                            <img src="img/placeholder.png" alt="placeholder">
+                        </div>
+                        <!-- Populate more graph divs here with JS DOM-->
+                    </div>
+                </article>
+
+            </section>
+
+            <section id="map" style="display:none;">
+                <div class="filter">
+                    <label for="map_location"></label>
+                    <input type="text" id="map_location" name="map_location" placeholder="Location">
+                    <label for="map_filter"></label>
+                    <select id="map_filter" placeholder="Filter">
+                        <option value="placeholder">Filter</option>
+                    </select>
+                    <label for="map_view"></label>
+                    <select id="map_view" placeholder="View">
+                        <option value="placeholder">View</option>
+                    </select>
+                </div>
+
+                <div>
+                    <img src="img/placeholder.png" alt="placeholder">
+                </div>
+            </section>
+
+            <section id="statistics" style="display:none;">
+                <div class="filter">
+                    <label for="statistics_filter"></label>
+                    <select id="statistics_filter" placeholder="Filter">
+                        <option value="placeholder">Filter</option>
+                    </select>
+                </div>
+
+                <div id="statistics_content">
+                    <article>
+                        <h1><span id="statistics_name"></span> near: <span id="statistics_zipcode"></span></h1>
+                        <p><span id="statistics_disease_description"></span></p>
+                    </article>
+
+                    <article>
+                        <h2>Risk Score <span id="statistics_disease_score"></span></h2>
+                        <p><span id="statistics_risk_description"></span></p>
+                    </article>
+
+                    <article>
+                        <h2>Wastewater Analysis</h2>
+                        <img src="img/placeholder.png" alt="placeholder">
+                        <p><span id="statistics_disease_name"></span> Parts Per Million (PPM) from a <span id="statistics_wastewater_name"></span></p>
+                        <p><span id="statistics_wastewater_description"></span></p>
+                    </article>
+
+                    <article>
+                        <h2>Hospitalizations and Prevalence</h2>
+                        <h3>Per 100,000 people</h3>
+                        <img src="img/placeholder.png" alt="placeholder">
+                        <p><span id="statistics_prevalence_description"></span></p>
+                    </article>
+
+                    <article>
+                        <h2>Key Matrics</h2>
+                        <div>
+                            <div>
+                                <p>Metric Name</p>
+                                <img src="img/placeholder.png" alt="placeholder">
+                            </div>
+                            <!-- Populate more metric divs here with JS DOM-->
+                        </div>
+                    </article>
+                </div>
+
+            </section>
+
+            <section id="resources" style="display:none;">
+                <div>
+                    <h1>Check Your Symptoms</h1>
+                </div>
+
+                <div>
+                    <strong><p>Submit Form</p></strong>
+                    <p>Please fill in the required information</p>
+
+                    <p>progress bar goes here</p>
+                </div>
+
+                <div>
+                    <p>questions go here</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+
+        </footer>
+        <script src="js/dashboard.js"></script>
+    </body>
+</html>

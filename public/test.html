@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="Chip Tang">
+        <link rel="stylesheet" href="css/styles.css">
+        <title>GeoHealth - Test</title>
+    </head>
+    <body>
+        <main>
+            <section>
+                <h1>Send Testing Message to the Remote Server</h1>
+                <input type="text" id="message" placeholder="Testing Message" required>
+                <button id="send_button">Send</button>
+            </section>
+
+            <section>
+                <h1>Retrieve Testing Records from the Remote Server</h1>
+                <p>Type in "all" for all records</p>
+                <input type="text" id="test_id" placeholder="Test ID" required>
+                <button id="retrieve_button">Retrieve</button>
+                <table id="record_table">
+                    <thead>
+                        <tr>
+                            <th>Test ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Records will be inserted here -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+        <script src="js/test.js"></script>
+    </body>
+</html>
