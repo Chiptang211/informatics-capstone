@@ -2,30 +2,45 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="author" content="Chip Tang">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Chip Tang and Grant Branstetter">
+        <title>GeoHealth - Home</title>
         <link rel="stylesheet" href="css/styles.css">
         <link rel="icon" type="image/jpg" href="img/favicon.jpg">
-        <title>GeoHealth - Home</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">   
     </head>
+    
     <body>
-        <header>
-            <div class="topnav">
-                <a href="index.html"><img src="img/icon.png" alt="Favicon" class="favicon"></a>
-                <a href="index.html">GeoHealth</a>
-                <a href="about.html">About</a>
-                <a href="feedback.html">Feedback</a>
-                <a href="team.html">Team</a>
+        <header role="banner">
+            <div class="navbar-container">
+                <nav>
+                    <div>
+                        <h1 class="title"><a href="index.html"><img src="img/geohealthlogo.png" alt="GeoHealth Logo"></a></h1>
+                    </div>
+                    <ul class="links">
+                        <li><a id="dashboard" href="dashboard.html">Dashboard</a></li>
+                        <li><a id="about" href="about.html">About</a></li>
+                        <li><a id="team" href="team.html">Team</a></li>
+                    </ul>
+                </nav>
             </div>
         </header>
 
         <main>
-            <section>
-                <h1>Infectious disease monitoring by location</h1>
-                <label for="location"></label>
-                <input type="text" id="location" name="location" placeholder="Enter your address to see nearby health risks" required>
-                <button type="location_button">Search</button>
-                <a href="dashboard.html">Placeholder, click this to jump to dashboard</a>
-            </section>
+            <container class="disease-monitoring">
+                <div class="search-content">
+                    <h1>Infectious disease monitoring by location</h1>
+                    <img src="img/geohealthicon.png" alt="GeoHealth Logo">
+                </div>
+                <div class="img-content">
+                    <form action="/search" method="get" class="search-bar">
+                        <input type="text" name="query" placeholder="Search..." />
+                        <button type="submit">Search</button>
+                    </form> 
+                </div>
+            </container>
 
             <section>
                 <h1>Server Testing Page</h1>

@@ -1,0 +1,133 @@
+html {
+    height: 100%; /* Ensure the full height is available */
+    margin: 0; /* Reset default margins */
+    padding: 0;
+}
+h1, h2, h3 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500; 
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.navbar-container {
+    position: fixed;
+    background-color: #FFFFFF;
+    box-shadow: -20px 4px 30px rgba(0, 0, 0, 0.1), 20px 4px 30px rgba(0, 0, 0, 0.1);
+    width: calc(100% + 40px); /* Add extra width to accommodate the shadows */
+    margin: 0 -20px; /* Compensate for the extra width with negative margins */
+     /* Remove default padding */
+}
+
+nav {
+    background: #FFFFFF;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    text-align: left;
+    padding: 0px;
+    margin: 0px;
+}
+
+.links {
+    padding:0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+}
+
+.links li {
+    display: inline; /* Display list items inline */
+    margin-right: 100px; /* Add spacing between list items */
+    text-decoration:none;
+}
+
+.links a {
+    text-decoration: none; /* Remove underline from links */
+    color: black; /* Change link color */
+     /* Add padding to links */
+}
+
+.title a {
+    text-decoration:none;
+}
+
+h1 {
+    padding: 5px;
+    margin-left:85px;
+}
+
+.title img {
+    width: auto; /* Adjust as needed */
+    height: 50px;
+    margin-left: 100px;
+    padding: 3px; /* Adjust as needed */
+    /* Add any other styling as needed */
+}
+
+.disease-monitoring {
+    display: flex;
+    flex-direction: column; /* Change to vertical layout */
+    justify-content: center;
+    align-items: center; /* Center horizontally */
+    height: 100vh;
+    padding-left: 20px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.disease-monitoring h1 {
+    margin-bottom: 20px;
+    text-align: center; /* Center the heading */
+}
+
+.disease-monitoring img {
+    height: 300px; /* Adjust based on your logo's size */
+    width: auto; /* Maintain aspect ratio */
+}
+
+.search-bar {
+    display: flex;
+    margin: 20px 0;
+    justify-content: center;
+}
+
+.search-bar input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px; /* Rounded corners on the left side */
+    outline: none; /* Removes the default focus outline */
+    width: 250px; /* Adjust based on your design */
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF; /* Example button color */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0; /* Rounded corners on the right side */
+    outline: none; /* Removes the default focus outline */
+}
+
+.search-bar button:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+}
