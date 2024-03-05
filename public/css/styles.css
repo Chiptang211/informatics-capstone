@@ -137,3 +137,52 @@ h1 {
     background-color: #433aa4; /* Darker shade for hover effect */
 }
 
+/* tentative sidebar styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #675AFF;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.sidebar img.favicon {
+    width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #7c85ff;
+}
+
+.main-content {
+    margin-left: 250px;
+}
+
+/* dashboard top card styling */
+#dashboard {
+    background-color: white;
+    margin-left: 100px;
+    margin-right: 100px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
