@@ -48,11 +48,12 @@ app.post('/update/all', async (req, res) => {
 
         for (const date of dates) {
             const data = await fetchDataForDate(date);
-            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, detect_proportion, percentile, date_start, date_end)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, percent_change, detect_proportion, percentile, date_start, date_end)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
 
             for (const item of data) {
-                const detectProp15d = item.detect_prop_15d ? item.detect_prop_15d : 100;
+                const percentChange15d = item.ptc_15d !== null ? item.ptc_15d : 0;
+                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
 
                 const covid_id = `${item.date_start}_${item.wwtp_id}`;
                 await db.run(insertQuery, [
@@ -60,9 +61,10 @@ app.post('/update/all', async (req, res) => {
                     item.wwtp_jurisdiction,
                     item.county_names,
                     item.county_fips,
-                    item.sample_location,
+                    item.key_plot_id,
                     item.wwtp_id,
                     item.population_served,
+                    percentChange15d,
                     detectProp15d,
                     item.percentile || 'default_percentile_value',
                     item.date_start,
@@ -90,11 +92,12 @@ app.post('/update/30', async (req, res) => {
 
         for (const date of dates) {
             const data = await fetchDataForDate(date);
-            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, detect_proportion, percentile, date_start, date_end)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, percent_change, detect_proportion, percentile, date_start, date_end)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
 
             for (const item of data) {
-                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 100;
+                const percentChange15d = item.ptc_15d !== null ? item.ptc_15d : 0;
+                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
 
                 const covid_id = `${item.date_start}_${item.wwtp_id}`;
                 await db.run(insertQuery, [
@@ -102,9 +105,10 @@ app.post('/update/30', async (req, res) => {
                     item.wwtp_jurisdiction,
                     item.county_names,
                     item.county_fips,
-                    item.sample_location,
+                    item.key_plot_id,
                     item.wwtp_id,
                     item.population_served,
+                    percentChange15d,
                     detectProp15d,
                     item.percentile || 'default_percentile_value',
                     item.date_start,
@@ -126,7 +130,7 @@ app.post('/fetch/data', async (req, res) => {
     try {
         const db = await getDBConnection();
         const query = `
-            SELECT detect_proportion, percentile 
+            SELECT detect_proportion, percentile, percent_change
             FROM covid_wastewater 
             WHERE (',' || county_fips || ',' LIKE ?) AND date_start = ? 
             LIMIT 1`;
@@ -138,6 +142,7 @@ app.post('/fetch/data', async (req, res) => {
             res.json({
                 status: 'success',
                 data: {
+                    percent_change: record.percent_change,
                     detect_proportion: record.detect_proportion,
                     percentile: record.percentile
                 }
