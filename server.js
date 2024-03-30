@@ -6,6 +6,7 @@ const sqlite = require('sqlite');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -18,50 +19,136 @@ async function getDBConnection() {
   return db;
 }
 
-app.post('/test/send', async (req, res) => {
-  try {
-      let { message, date, time} = req.body;
-      if (!message || !date || !time) {
-          return res.status(400).send('Missing data');
-      }
+function getDates(startDate, endDate) {
+    const dates = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+}
 
-      const db = await getDBConnection();
+async function fetchDataForDate(date) {
+    const fetch = (await import('node-fetch')).default;
+    const formattedDate = date.toISOString().split('T')[0];
+    const apiUrl = `https://data.cdc.gov/resource/2ew6-ywp6.json?wwtp_jurisdiction=Washington&date_start=${formattedDate}&$limit=50000`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    return data;
+}
 
-      const result = await db.run(`INSERT INTO test (test_date, test_time, test_message) VALUES (?, ?, ?)`, [message, date, time]);
+app.post('/update/all', async (req, res) => {
+    const startDate = new Date('2022-01-01');
+    const endDate = new Date();
+    const dates = getDates(startDate, endDate);
 
-      if (result && result.lastID) {
-          return res.status(201).json({ testId: result.lastID });
-      } else {
-          return res.status(500).send('Could not store test message to DB');
-      }
-  } catch (error) {
-      console.error('Failed to store message to DB', error);
-      return res.status(500).send('Internal Server Error');
-  }
+    try {
+        const db = await getDBConnection();
+
+        for (const date of dates) {
+            const data = await fetchDataForDate(date);
+            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, detect_proportion, percentile, date_start, date_end)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+
+            for (const item of data) {
+                const detectProp15d = item.detect_prop_15d ? item.detect_prop_15d : 100;
+
+                const covid_id = `${item.date_start}_${item.wwtp_id}`;
+                await db.run(insertQuery, [
+                    covid_id,
+                    item.wwtp_jurisdiction,
+                    item.county_names,
+                    item.county_fips,
+                    item.sample_location,
+                    item.wwtp_id,
+                    item.population_served,
+                    detectProp15d,
+                    item.percentile || 'default_percentile_value',
+                    item.date_start,
+                    item.date_end
+                ]);
+            }
+        }
+
+        res.status(200).json({ message: 'Data fetched and inserted successfully' });
+    } catch (error) {
+        console.error('Error fetching or inserting data:', error);
+        res.status(500).json({ error: 'Failed to fetch or insert data into the database' });
+    }
 });
 
-app.get('/test/lookup', async (req, res) => {
-  const { testId } = req.query;
-  if (!testId) {
-      return res.status(400).send('Missing or invalid testId');
-  }
+app.post('/update/30', async (req, res) => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 30);
 
-  const db = await getDBConnection();
-  try {
-      if (testId === 'all') {
-          const allInfo = await db.all(`SELECT test_id, test_date, test_time, test_message FROM test`);
-          return res.status(200).json(allInfo);
-      } else {
-          const info = await db.all(`SELECT test_id, test_date, test_time, test_message FROM test WHERE test_id = ?`, [testId]);
-          if (info.length === 0) {
-              return res.status(404).send('Test Record not Found');
-          }
-          res.status(200).json(info);
-      }
-  } catch (error) {
-      console.error('Failed to lookup test record', error);
-      res.status(500).send('Internal Server Error');
-  }
+    const dates = getDates(startDate, endDate);
+
+    try {
+        const db = await getDBConnection();
+
+        for (const date of dates) {
+            const data = await fetchDataForDate(date);
+            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, detect_proportion, percentile, date_start, date_end)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+
+            for (const item of data) {
+                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 100;
+
+                const covid_id = `${item.date_start}_${item.wwtp_id}`;
+                await db.run(insertQuery, [
+                    covid_id,
+                    item.wwtp_jurisdiction,
+                    item.county_names,
+                    item.county_fips,
+                    item.sample_location,
+                    item.wwtp_id,
+                    item.population_served,
+                    detectProp15d,
+                    item.percentile || 'default_percentile_value',
+                    item.date_start,
+                    item.date_end
+                ]);
+            }
+        }
+
+        res.status(200).json({ message: 'Data for the last 30 days fetched and inserted successfully.' });
+    } catch (error) {
+        console.error('Error fetching or inserting data:', error);
+        res.status(500).json({ error: 'Failed to fetch or insert data into the database for the last 30 days.' });
+    }
+});
+
+app.post('/fetch/data', async (req, res) => {
+    const { countyFips, dateStart } = req.body;
+
+    try {
+        const db = await getDBConnection();
+        const query = `
+            SELECT detect_proportion, percentile 
+            FROM covid_wastewater 
+            WHERE (',' || county_fips || ',' LIKE ?) AND date_start = ? 
+            LIMIT 1`;
+        const params = [`%,${countyFips},%`, dateStart];
+
+        const record = await db.get(query, params);
+
+        if (record) {
+            res.json({
+                status: 'success',
+                data: {
+                    detect_proportion: record.detect_proportion,
+                    percentile: record.percentile
+                }
+            });
+        } else {
+            res.status(404).json({ status: 'error', message: 'No matching records found.' });
+        }
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ status: 'error', message: 'Failed to query the database.' });
+    }
 });
 
 
