@@ -3,66 +3,66 @@ Last Updated at 6:00 AM PDT on March 30th
 
 ## Database
 ### covid_id
-- TEXT NOT NULL UNIQUE
-- "2024-03-12_760"
-- A combination of date and wastewater treatment plants id.
+- **Data Tyoe:** TEXT NOT NULL UNIQUE
+- **Data Example:** "2024-03-12_760"
+- **Data Description:** A combination of date and wastewater treatment plants id.
 
 ### state
-- TEXT NOT NULL
-- "Washington"
-- State
+- **Data Tyoe:** TEXT NOT NULL
+- **Data Example:** "Washington"
+- **Data Description:** State
 
 ### county_name
-- TEXT NOT NULL
-- "Spokane or "King,Snohomish"
-- The county and county-equivalent names corresponding to the FIPS codes in 'county_fips'.
+- **Data Tyoe:** TEXT NOT NULL
+- **Data Example:** "Spokane or "King,Snohomish"
+- **Data Description:** The county and county-equivalent names corresponding to the FIPS codes in 'county_fips'.
 
 ### county_fips
-- INTEGER NOT NULL
-- 53063 or 53061,53033
-- 5-digit numeric FIPS codes of all counties and county equivalents served by this sampling site.
+- **Data Tyoe:** INTEGER NOT NULL
+- **Data Example:** 53063 or 53061,53033
+- **Data Description:** 5-digit numeric FIPS codes of all counties and county equivalents served by this sampling site.
 
 ### plant_name
-- TEXT NOT NULL
-- "NWSS_wa_760_Treatment plant_raw wastewater"
-- A unique identifier for the geographic area served by this sampling site, called a sewershed. This is an underscore-separated concatenation of the fields 'wwtp_jurisdiction', 'wwtp_id', and, if 'sample_location' is "upstream", then also 'sample_location_specify', and sample_matrix.
+- **Data Tyoe:** TEXT NOT NULL
+- **Data Example:** "NWSS_wa_760_Treatment plant_raw wastewater"
+- **Data Description:** A unique identifier for the geographic area served by this sampling site, called a sewershed. This is an underscore-separated concatenation of the fields 'wwtp_jurisdiction', 'wwtp_id', and, if 'sample_location' is "upstream", then also 'sample_location_specify', and sample_matrix.
 
 ### plant_id
-- INTEGER NOT NULL
-- 760
-- A unique identifier for wastewater treatment plants. This is an arbitrary integer used to provide a unique, but anonymous identifier for a wastewater treatment plant. This identifier is consistent over time, such that the same plant retains the same ID regardless of the addition or subtraction of other plants from the data set.
+- **Data Tyoe:** INTEGER NOT NULL
+- **Data Example:** 760
+- **Data Description:** A unique identifier for wastewater treatment plants. This is an arbitrary integer used to provide a unique, but anonymous identifier for a wastewater treatment plant. This identifier is consistent over time, such that the same plant retains the same ID regardless of the addition or subtraction of other plants from the data set.
 
 ### population
-- INTEGER NOT NULL
-- 120000
-- Estimated number of persons served by this sampling site (i.e., served by this wastewater treatment plant or, if 'sample_location' is "upstream", then by this upstream location).
+- **Data Tyoe:** INTEGER NOT NULL
+- **Data Example:** 120000
+- **Data Description:** Estimated number of persons served by this sampling site (i.e., served by this wastewater treatment plant or, if 'sample_location' is "upstream", then by this upstream location).
 
 ### percent_change
-- NUMERIC
--
-- The percent change in SARS-CoV-2 RNA levels over the 15-day interval defined by 'date_start' and 'date_end'. Percent change is calculated as the modeled change over the interval, based on linear regression of log-transformed SARS-CoV-2 levels. SARS-CoV-2 RNA levels are wastewater concentrations that have been normalized for wastewater composition.
+- **Data Tyoe:** NUMERIC
+- **Data Example:** 2737
+- **Data Description:** The percent change in SARS-CoV-2 RNA levels over the 15-day interval defined by 'date_start' and 'date_end'. Percent change is calculated as the modeled change over the interval, based on linear regression of log-transformed SARS-CoV-2 levels. SARS-CoV-2 RNA levels are wastewater concentrations that have been normalized for wastewater composition.
 
 ### detect_proportion
-- NUMERIC
-- 100
-- The proportion of tests with SARS-CoV-2 detected, meaning a cycle threshold (Ct) value <40 for RT-qPCR or at least 3 positive droplets/partitions for RT-ddPCR, by sewershed over the 15-day window defined by 'date_start' and "date_end'. The detection proportion is the percent calculated by dividing the 15-day rolling sum of SARS-CoV-2 detections by the 15-day rolling sum of the number of tests for each sewershed and multiplying by 100.
+- **Data Tyoe:** NUMERIC
+- **Data Example:** 100
+- **Data Description:** The proportion of tests with SARS-CoV-2 detected, meaning a cycle threshold (Ct) value <40 for RT-qPCR or at least 3 positive droplets/partitions for RT-ddPCR, by sewershed over the 15-day window defined by 'date_start' and "date_end'. The detection proportion is the percent calculated by dividing the 15-day rolling sum of SARS-CoV-2 detections by the 15-day rolling sum of the number of tests for each sewershed and multiplying by 100.
 
 ### percentile
-- NUMERIC
-- 6.6
-- This metric shows whether SARS-CoV-2 virus levels at a site are currently higher or lower than past historical levels at the same site. 0% means levels are the lowest they have been at the site; 100% means levels are the highest they have been at the site. Public health officials watch for increasing levels of the virus in wastewater over time and use this data to help make public health decisions.
+- **Data Tyoe:** NUMERIC
+- **Data Example:** 6.6
+- **Data Description:** This metric shows whether SARS-CoV-2 virus levels at a site are currently higher or lower than past historical levels at the same site. 0% means levels are the lowest they have been at the site; 100% means levels are the highest they have been at the site. Public health officials watch for increasing levels of the virus in wastewater over time and use this data to help make public health decisions.
 
 ### date_start
-- TEXT NOT NULL
-- 2024-03-12
-- The start date of the interval over which the metric is calculated. Intervals are inclusive of start and end dates.
+- **Data Tyoe:** TEXT NOT NULL
+- **Data Example:** 2024-03-12
+- **Data Description:** The start date of the interval over which the metric is calculated. Intervals are inclusive of start and end dates.
 
 ### date_end
-- TEXT NOT NULL
-- 2024-03-26
-- The end date of the interval over which metric is calculated. Intervals are inclusive of start and end dates.
+- **Data Tyoe:** TEXT NOT NULL
+- **Data Example:** 2024-03-26
+- **Data Description:** The end date of the interval over which metric is calculated. Intervals are inclusive of start and end dates.
 
-
+See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wastewater-Metric-Data/2ew6-ywp6/about_data``` for more information.
 
 
 ## API

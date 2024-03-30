@@ -131,8 +131,8 @@ app.post('/fetch/data', async (req, res) => {
         const db = await getDBConnection();
         const query = `
             SELECT detect_proportion, percentile, percent_change
-            FROM covid_wastewater 
-            WHERE (',' || county_fips || ',' LIKE ?) AND date_start = ? 
+            FROM covid_wastewater
+            WHERE (',' || county_fips || ',' LIKE ?) AND date_start = ?
             LIMIT 1`;
         const params = [`%,${countyFips},%`, dateStart];
 
