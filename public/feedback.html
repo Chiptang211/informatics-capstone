@@ -16,7 +16,7 @@
                     </div>
                     <ul class="links">
                         <li><a id="dashboard" href="dashboard.html">Dashboard</a></li>
-                        <li><a id="about" href="about.html">About</a></li>
+                        <li><a id="feedback" href="feedback.html">Feedback</a></li>
                         <li><a id="team" href="team.html">Team</a></li>
                     </ul>
                 </nav>
@@ -25,8 +25,16 @@
 
         <main>
             <section>
-                <h1>Feedback</h1>
-                <p>placeholder</p>
+                <h1>Rate your Experience with GeoHealth Below:</h1>
+                <form id = "feedback-form">
+                    <p>On a scale from 1-5 stars:</p>
+                    <input type="number" id="star-rating" name="star-rating" min="1" max = "5">
+                    <p>What did you Like?</p>
+                    <textarea id="like-feedback" name="like_feedback" rows="4" cols="50"></textarea>
+                    <p>What can we improve upon?</p>
+                    <textarea id="improve-feedback" name="improve_feedback" rows="4" cols="50"></textarea>
+                    <button type="submit">Submit</button>
+                </form>
             </section>
         </main>
 

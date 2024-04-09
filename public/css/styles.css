@@ -210,3 +210,21 @@ h1 {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border-radius: 8px;
 }
+article img {
+    max-width: 250px;
+    max-height: 250px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+article {
+    text-align:center;
+    display: inline-block;
+    margin: 10px;
+    width: 250px;
+}
+#team_section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
