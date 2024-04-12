@@ -139,3 +139,26 @@ JSON
 - **Error Handling:**
   - Returns 404 if no matching records are found.
   - Returns 500 for internal server errors or if there is a failure in querying the database.
+
+  ### 1. Fetch PPM and Risk Factor data by Zip Code
+  - **Request URL:** '/fetch/data/'
+  - **Request Format** Query Parameters 
+  - **Request Type** GET
+  - **Request Description** Get PPM and Risk Factor Data by passing in Zip Code as a Query Parameter. 
+  - **Example Request**
+  '''
+  GET
+  /fetch/data?zipCode=98105
+  '''
+  - **Example Response**
+  [
+    {
+      "ppm":10231,
+      "riskFactor":"Medium"
+    }
+  ]
+  - **Error Handling**
+  *Returns 400/ Bad Request if Zip Code is not a valid Zip Code within WA State.
+  *Returns 500/Internal Server Error if any server-side issues occur
+  *Empty data returned if Zip Code is valid within WA State and does not have any valid data.
+  
