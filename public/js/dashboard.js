@@ -8,18 +8,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function showSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
-            section.style.display = '';
+            section.style.display = 'flex';
         }
     }
-
     document.querySelectorAll('.sidebar a').forEach(function(link) {
-        link.addEventListener('click', function(event) {
-            event.preventDefault(); 
-
-            const sectionId = this.getAttribute('href').substring(1);
-            hideAllSections();
-            showSection(sectionId);
-        });
+        if (link.getAttribute('href').startsWith('#')) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const sectionId = this.getAttribute('href').substring(1);
+                hideAllSections();
+                showSection(sectionId);
+            });
+        }
     });
-showSection('dashboard');
+    showSection('dashboard');
 });
