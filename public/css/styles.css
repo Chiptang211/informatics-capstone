@@ -28,6 +28,7 @@ html {
  
  .navbar-container {
     position: fixed;
+    top: 0;
     background-color: #FFFFFF;
     box-shadow: -20px 4px 30px rgba(0, 0, 0, 0.1), 20px 4px 30px rgba(0, 0, 0, 0.1);
     width: calc(100% + 40px);
