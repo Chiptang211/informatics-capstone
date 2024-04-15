@@ -360,9 +360,6 @@ html {
    
  }
  
- 
- 
- 
  #viral_detection_graphs .text-container {
     text-align: left;
     flex: 1;
@@ -378,14 +375,14 @@ html {
  }
  #viral_detection_graphs h2, #viral_detection_graphs p {
     margin: 0;
-    display: inline-block; /* Ensures text alignment is controlled */
+    display: inline-block;
     justify-content: center;
  }
  
  
  #viral_detection_graphs p {
     color: #969696;
-    margin-top: 0px; /* Adjusts spacing between h2 and p to be closer */
+    margin-top: 0px; 
     box-shadow: none;
     padding-left: 1px;
     padding-top: 2px;
@@ -394,8 +391,53 @@ html {
  
  
  #viral_detection_graphs img {
-    width: 100px; /* Adjust width as needed */
-    height: auto; /* Maintain aspect ratio */
-    margin-left: 20px; /* Ensures some space between the text and image */
+    width: 100px;
+    height: auto; 
+    margin-left: 20px;
  }
+
+ /* statistics page */
+#statistics {
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px; 
+    margin-top: 0; 
+    padding: 20px; 
+    box-sizing: border-box;
+    width: calc(100% - 250px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 250px;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.statistics-header {
+    width: 100%; 
+}
+
+#statistics .filter,
+#statistics #statistics_content > article {
+    background-color: #fff; 
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+#statistics #statistics_content > article {
+    display: block;
+}
+
+#statistics #statistics_content img {
+    max-width: 100%; 
+    height: auto;
+}
+
+#statistics #statistics_content article h2,
+#statistics #statistics_content article p {
+    text-align: left;
+}
+
+
+
  
