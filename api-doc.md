@@ -66,7 +66,7 @@ See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wa
 
 
 ## API
-Base url: "https://infocapstone.chiptang.com" + request
+Base url: "https://geohealth.chiptang.com" + request
 
 ### 1. Update All
 **DO NOT USE** unless you have Chip's permission, it takes around 5 minutes to pull all the data!
