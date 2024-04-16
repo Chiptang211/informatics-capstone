@@ -31,11 +31,14 @@
         <main>
             <div class="disease-monitoring">
                 <div class="text-search-container">
-                    <h1>Infectious disease monitoring <span class="newline">by location</span></h1>
-                    <form action="/search" method="get" class="search-bar">
-                        <input type="text" name="query" placeholder="Search..." />
+
+                    <h1>Wastewater Disease Monitoring <span class="newline">by location</span></h1>
+
+                    <form id="search-form" class="search-bar">
+                        <input type="text" id="zipcode-input" name="query" placeholder="Enter your zipcode...">
                         <button type="submit">Search</button>
                     </form>
+
                 </div>
                 <div class="img-container">
                     <img src="img/geohealthicon.png" alt="GeoHealth Logo">
