@@ -38,6 +38,56 @@ async function fetchDataForDate(date) {
     return data;
 }
 
+async function calculateRisk() {
+    const db = await getDBConnection();
+    try {
+        // Fetch all data for calculation, ordered by plant and date
+        const rows = await db.all(`SELECT covid_id, plant_id, percent_change, date_start FROM covid_wastewater ORDER BY plant_id, date_start`);
+
+        // To hold smoothed values for each plant
+        const smoothData = {};
+        const riskScores = {};
+
+        rows.forEach(row => {
+            if (!smoothData[row.plant_id]) {
+                smoothData[row.plant_id] = []; // Initialize array for new plants
+            }
+
+            // Push current percent_change into the array for the plant
+            smoothData[row.plant_id].push(row.percent_change);
+
+            // Calculate smoothed value using a simple moving average, considering only the last 3 values
+            if (smoothData[row.plant_id].length > 3) {
+                smoothData[row.plant_id].shift(); // Remove the oldest entry if more than 3
+            }
+
+            const average = smoothData[row.plant_id].reduce((a, b) => a + (b || 0), 0) / smoothData[row.plant_id].length;
+            const pcrConcSmoothed = isNaN(average) ? null : average;
+
+            // Determine the risk score based on smoothed PCR concentration
+            let riskScore;
+            if (pcrConcSmoothed <= 25) {
+                riskScore = 1;
+            } else if (pcrConcSmoothed <= 75) {
+                riskScore = 5;
+            } else {
+                riskScore = 10;
+            }
+
+            // Store the latest risk score for each plant
+            riskScores[row.plant_id] = { score: riskScore, date: row.date_start };
+
+            // Update database with smoothed value and risk score
+            db.run(`UPDATE covid_wastewater SET pcr_conc_smoothed = ?, risk_score = ? WHERE covid_id = ?`, [pcrConcSmoothed, riskScore, row.covid_id]);
+        });
+
+        console.log('PCR concentrations smoothed and risk scores updated successfully');
+        console.log('Latest risk scores:', riskScores);
+    } catch (error) {
+        console.error('Error calculating smoothed PCR concentrations or updating risk scores:', error);
+    }
+}
+
 app.post('/update/all', async (req, res) => {
     const startDate = new Date('2022-01-01');
     const endDate = new Date();
@@ -71,6 +121,8 @@ app.post('/update/all', async (req, res) => {
                     item.date_end
                 ]);
             }
+
+            calculateRisk();
         }
 
         res.status(200).json({ message: 'Data fetched and inserted successfully' });
@@ -115,6 +167,8 @@ app.post('/update/30', async (req, res) => {
                     item.date_end
                 ]);
             }
+
+            calculateRisk();
         }
 
         res.status(200).json({ message: 'Data for the last 30 days fetched and inserted successfully.' });
@@ -124,28 +178,39 @@ app.post('/update/30', async (req, res) => {
     }
 });
 
-app.post('/fetch/data', async (req, res) => {
-    const { countyFips, dateStart } = req.body;
+app.get('/fetch/data', async (req, res) => {
+    const { zipcode, fromDate, toDate } = req.query;
+    console.log("Received parameters:", zipcode, fromDate, toDate);
 
     try {
         const db = await getDBConnection();
-        const query = `
-            SELECT detect_proportion, percentile, percent_change
+        const lookupQuery = `SELECT fips_code FROM zipcode_lookup WHERE zip_code = ?`;
+        const fipsRecord = await db.get(lookupQuery, [zipcode]);
+        if (!fipsRecord) {
+            return res.status(404).json({ status: 'error', message: 'Zipcode not found.' });
+        }
+
+        const fipsCode = fipsRecord.fips_code;
+        console.log("FIPS Code:", fipsCode);
+
+        let query = `
+            SELECT plant_id, detect_proportion, percentile, percent_change, risk_score, date_end
             FROM covid_wastewater
-            WHERE (',' || county_fips || ',' LIKE ?) AND date_start = ?
-            LIMIT 1`;
-        const params = [`%,${countyFips},%`, dateStart];
+            WHERE ',' || county_fips || ',' LIKE ?`;
+        let params = [`%,${fipsCode},%`];
 
-        const record = await db.get(query, params);
+        if (fromDate || toDate) {
+            query += ` AND date_end BETWEEN ? AND ?`;
+            params.push(fromDate || '0001-01-01', toDate || '9999-12-31');
+        }
 
-        if (record) {
+        console.log("Final query:", query);
+        const records = await db.all(query, params);
+
+        if (records.length > 0) {
             res.json({
                 status: 'success',
-                data: {
-                    percent_change: record.percent_change,
-                    detect_proportion: record.detect_proportion,
-                    percentile: record.percentile
-                }
+                data: records
             });
         } else {
             res.status(404).json({ status: 'error', message: 'No matching records found.' });
@@ -155,6 +220,7 @@ app.post('/fetch/data', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Failed to query the database.' });
     }
 });
+
 
 
 app.use(express.static('public'));

@@ -109,18 +109,19 @@ JSON
   - Returns 500 for internal server errors or if there is a failure in fetching or inserting data into the database.
 
 
-### 3. Fetch Data by FIPS and Date
+### 3. Fetch Data by Zipcode
 - **Request URL:** `/fetch/data`
-- **Request Format:** JSON
-- **Request Type:** POST
-- **Description:**  Fetches the percent_change, detect_proportion and percentile for a given county FIPS code and start date.
+- **Request Format:** Text
+- **Request Type:** GET
+- **Description:**  Fetches various metrics from the covid_wastewater table based on zipcode. Date ranges are optional. Note that there might be multiple wastewater plants associated with a given zipcode, so it will return all relevant data.
+- **Query Parameters:**
+  - **zipcode:** The postal zip code used to look up the corresponding county FIPS code.
+  - **fromDate (optional):** The start date for filtering records.
+  - **toDate (optional):** The end date for filtering records.
 - **Example Request:**
 ```
-JSON
-{
-  "countyFips": "53033",
-  "dateStart": "2022-03-15"
-}
+TEXT
+/fetch/data?zipcode=98077&fromDate=2024-04-10&toDate=2024-04-11
 ```
 
 - **Example Response:**
@@ -128,37 +129,45 @@ JSON
 JSON
 {
   "status": "success",
-  "data": {
-    "percent_change": 100,
-    "detect_proportion": 100,
-    "percentile": 75
-  }
+  "data": [
+    {
+      "plant_id": 760,
+      "detect_proportion": 100,
+      "percentile": 3,
+      "percent_change": -56,
+      "risk_score": 1,
+      "date_end": "2024-04-10"
+    },
+    {
+      "plant_id": 759,
+      "detect_proportion": 100,
+      "percentile": 5.667,
+      "percent_change": -78,
+      "risk_score": 1,
+      "date_end": "2024-04-10"
+    },
+    {
+      "plant_id": 760,
+      "detect_proportion": 100,
+      "percentile": 3,
+      "percent_change": -56,
+      "risk_score": 1,
+      "date_end": "2024-04-11"
+    },
+    {
+      "plant_id": 759,
+      "detect_proportion": 100,
+      "percentile": 5.667,
+      "percent_change": -99,
+      "risk_score": 1,
+      "date_end": "2024-04-11"
+    }
+  ]
 }
 ```
 
 - **Error Handling:**
-  - Returns 404 if no matching records are found.
+  - Returns 404 when no records are found that match the provided zipcode or date range..
   - Returns 500 for internal server errors or if there is a failure in querying the database.
 
-  ### 1. Fetch PPM and Risk Factor data by Zip Code
-  - **Request URL:** '/fetch/data/'
-  - **Request Format** Query Parameters 
-  - **Request Type** GET
-  - **Request Description** Get PPM and Risk Factor Data by passing in Zip Code as a Query Parameter. 
-  - **Example Request**
-  '''
-  GET
-  /fetch/data?zipCode=98105
-  '''
-  - **Example Response**
-  [
-    {
-      "ppm":10231,
-      "riskFactor":"Medium"
-    }
-  ]
-  - **Error Handling**
-  *Returns 400/ Bad Request if Zip Code is not a valid Zip Code within WA State.
-  *Returns 500/Internal Server Error if any server-side issues occur
-  *Empty data returned if Zip Code is valid within WA State and does not have any valid data.
-  
+
