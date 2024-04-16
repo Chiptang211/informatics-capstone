@@ -400,7 +400,7 @@ html {
 #statistics {
     display: flex;
     flex-direction: column;
-    margin-left: 250px; 
+    margin-left: 100px; 
     margin-top: 0; 
     padding: 20px; 
     box-sizing: border-box;
@@ -415,6 +415,8 @@ html {
 
 .statistics-header {
     width: 100%; 
+    font-size: 2em;
+
 }
 
 #statistics .filter,
@@ -437,6 +439,93 @@ html {
 #statistics #statistics_content article p {
     text-align: left;
 }
+
+#statistics_disease_score {
+    font-size: 4em;
+    font-weight: bold;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+#statistics_zipcode {
+    color: #675AFF;
+}
+
+.statistics-header-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 80%;
+}
+
+.statistics-header {
+    flex-grow: 1; /* Allows the header to grow and fill the space */
+    max-width: 60%; /* Limits the width of the header to 60% of the container */
+}
+
+.statistics-description {
+    flex-basis: 40%; /* Optionally larger than header */
+    background-color: #FFFFFF; /* Background color as previous boxes */
+    padding: 15px; /* Padding to match other elements */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Shadow to match the design */
+    border-radius: 8px; /* Rounded corners */
+    color: #969696;
+    
+}
+
+.risk-score-container {
+    flex: 1; /* Lesser space for the risk score container */
+    text-align: center; /* Align text to the right */
+    margin-right: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+}
+
+.risk-score-label {
+    font-size: 1.5em; /* Set the size of the label */
+    margin-bottom: 0; /* Removes space between the label and the number */
+    padding-right: 0px; /* Padding on the right if needed for alignment */
+}
+
+.risk-score-value {
+    font-size: 4em; /* Large font size for the score */
+    font-weight: bold;
+    color: #675AFF; /* Brand color */
+    margin: 0; /* Adjust as needed */
+    padding-right: 0px; /* Padding on the right to maintain alignment */
+}
+
+#statistics_content article {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px; /* Space between articles */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.description-score-container {
+    display: flex;
+}
+
+
+
+@media (max-width: 768px) {
+    .statistics-header-container {
+        flex-direction: column; /* Stack vertically on small screens */
+    }
+    .statistics-header, .statistics-description {
+        margin-right: 0; /* Remove margin between them */
+        margin-bottom: 10px; /* Space between header and description */
+        flex: none; /* Override previous flex settings */
+        width: 100%; /* Full width for smaller screens */
+    }
+}
+
+
 
 
 
