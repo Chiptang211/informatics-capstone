@@ -38,9 +38,31 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data && data.status === 'success' && data.data.length > 0) {
                     currentZipcode = zipcode;  // Store the zipcode globally
+    
                     // Update any visible zipcode fields immediately after fetching
                     const statisticsZipcodeElements = document.querySelectorAll('#statistics_zipcode');
                     statisticsZipcodeElements.forEach(el => el.textContent = zipcode);
+    
+                    // Find the most recent risk score
+                    const latestData = data.data[data.data.length - 1];
+                    const riskScore = latestData.risk_score;
+    
+                    // Display the risk score
+                    const statisticsRiskScoreElement = document.getElementById('statistics_disease_score');
+                    statisticsRiskScoreElement.textContent = riskScore;
+    
+                    // Apply gradient color based on risk level
+                    let gradientColor;
+                    if (riskScore <= 3) {
+                        gradientColor = 'linear-gradient(to right, #00ff00, #33ff33)';
+                    } else if (riskScore <= 6) {
+                        gradientColor = 'linear-gradient(to right, #ffa500, #ffcc66)';
+                    } else {
+                        gradientColor = 'linear-gradient(to right, #ff0000, #ff6666)';
+                    }
+                    statisticsRiskScoreElement.style.backgroundImage = gradientColor;
+                    statisticsRiskScoreElement.style.webkitBackgroundClip = 'text'; /* For Safari */
+                    statisticsRiskScoreElement.style.color = 'transparent'; /* For Safari */
                 } else {
                     console.error('No data returned for this zipcode:', zipcode);
                 }
@@ -49,6 +71,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Fetching error:', error);
             });
     }
+    
+
+    // Function to render chart
+    /*function renderChart(data) {
+        // Your chart rendering code using a library like Chart.js
+        // Example:
+        const ctx = document.getElementById('particulateChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.label),
+                datasets: [{
+                    label: 'COVID Statistics',
+                    data: data.map(item => item.value),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }*/
 
     // Assuming you have some form or mechanism on index.html to initiate the search
     const urlParams = new URLSearchParams(window.location.search);
@@ -61,5 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
     hideAllSections();
     showSection('dashboard');
 });
+
 
 

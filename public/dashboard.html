@@ -8,6 +8,7 @@
    <link rel="preconnect" href="https://fonts.googleapis.com">
    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
    <title>GeoHealth - Dashboard</title>
 </head>
 <body>
@@ -72,26 +73,32 @@
 
 
            <section id="statistics" style="display:none;">
-                <div class="statistics-header">
-                    <h1>COVID-19 Statistics <br> near: <span id="statistics_zipcode"></span></h1>
+                <div class="statistics-header-container">
+                    <div class="statistics-header">
+                        <h1>COVID-19 Statistics <br> near: <span id="statistics_zipcode"></span></h1>
+                    </div>
+                    <div class="statistics-description">
+                        <p>COVID-19 is a contagious respiratory illness caused by the virus SARS-CoV-2. It primarily spreads through respiratory droplets and can cause symptoms such as fever, cough, and fatigue. Preventive measures like wearing masks and vaccination are crucial in reducing its spread.</p>
+                    </div>
                 </div>
-               <div class="filter">
+               <!-- <div class="filter">
                    <label for="statistics_filter"></label>
                    <select id="statistics_filter" placeholder="Filter">
                        <option value="placeholder">Filter</option>
                    </select>
-               </div>
+               </div> -->
 
                <div id="statistics_content">
-                   <article>
-                       <p><span id="statistics_disease_description"></span></p>
-                   </article>
-
-
-                   <article>
-                       <h2>Risk Score <span id="statistics_disease_score"></span></h2>
-                       <p><span id="statistics_risk_description"></span></p>
-                   </article>
+                    <div class="description-score-container">
+                        <article class="statistics-description">
+                            <p>GeoHealth calculates your personalized disease risk score on a scale from 1 to 10, tailored to your specific location and health data. This score reflects the level of risk for disease transmission, considering factors like wastewater PPM, infection rates, and vaccination coverage.</p>
+                        </article>
+                        <div class="risk-score-container">
+                            <h2 class="risk-score-label">Risk Score</h2>
+                            <p class="risk-score-value" id="statistics_disease_score"></p>
+                        </div>
+                    </div>
+        
 
 
                    <article>
@@ -99,6 +106,7 @@
                        <img src="img/placeholder.png" alt="placeholder">
                        <p><span id="statistics_disease_name"></span> Parts Per Million (PPM) from a <span id="statistics_wastewater_name"></span></p>
                        <p><span id="statistics_wastewater_description"></span></p>
+                       <!-- <canvas id="particulateChart"></canvas>-->
                    </article>
 
 
