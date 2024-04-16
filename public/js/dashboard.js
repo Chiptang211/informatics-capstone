@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    let currentZipcode = '';  // Variable to store the current zipcode
+
     function hideAllSections() {
         document.querySelectorAll('main .main-content section').forEach(function(section) {
             section.style.display = 'none';
@@ -8,18 +10,56 @@ document.addEventListener('DOMContentLoaded', function () {
     function showSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
-            section.style.display = 'flex';
+            section.style.display = 'flex';  // Ensure that this matches your CSS for displaying sections
+            // Update the zipcode in the statistics section when it is shown
+            if (sectionId === 'statistics' && currentZipcode) {
+                const statisticsZipcodeElements = document.querySelectorAll('#statistics_zipcode');
+                statisticsZipcodeElements.forEach(el => el.textContent = currentZipcode);
+            }
         }
     }
+
     document.querySelectorAll('.sidebar a').forEach(function(link) {
+        // Only add internal navigation handling to hash links
         if (link.getAttribute('href').startsWith('#')) {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
-                const sectionId = this.getAttribute('href').substring(1);
                 hideAllSections();
+                const sectionId = this.getAttribute('href').substring(1);
                 showSection(sectionId);
             });
         }
     });
+    
+    function fetchAndDisplayData(zipcode) {
+        const apiUrl = `https://geohealth.chiptang.com/fetch/data?zipcode=${zipcode}`;
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.status === 'success' && data.data.length > 0) {
+                    currentZipcode = zipcode;  // Store the zipcode globally
+                    // Update any visible zipcode fields immediately after fetching
+                    const statisticsZipcodeElements = document.querySelectorAll('#statistics_zipcode');
+                    statisticsZipcodeElements.forEach(el => el.textContent = zipcode);
+                } else {
+                    console.error('No data returned for this zipcode:', zipcode);
+                }
+            })
+            .catch(error => {
+                console.error('Fetching error:', error);
+            });
+    }
+
+    // Assuming you have some form or mechanism on index.html to initiate the search
+    const urlParams = new URLSearchParams(window.location.search);
+    const zipcode = urlParams.get('zipcode');
+    if (zipcode) {
+        fetchAndDisplayData(zipcode);
+    }
+
+    // Show the initial dashboard section
+    hideAllSections();
     showSection('dashboard');
 });
+
+
