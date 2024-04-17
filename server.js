@@ -87,60 +87,27 @@ async function calculateRisk() {
     }
 }
 
-app.post('/update/all', async (req, res) => {
-    const startDate = new Date('2024-01-01');
+app.post('/update/covid', async (req, res) => {
+    const { dateLimit, dayLimit } = req.query;
+
     const endDate = new Date();
-    const dates = getDates(startDate, endDate);
+    let startDate = new Date();
 
-    try {
-        const db = await getDBConnection();
-
-        for (const date of dates) {
-            const data = await fetchDataForDate(date);
-            const insertQuery = `
-                INSERT INTO covid_wastewater (
-                    covid_id, state, county, fips_id, facility_name, facility_cdc_id, population_served,
-                    percent_change, covid_level, percent_detect, date_start, date_end
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (covid_id) DO NOTHING
-            `;
-
-            for (const item of data) {
-                const percentChange = item.ptc_15d !== null ? item.ptc_15d : 0;
-                const covidLevel = item.percentile !== null ? item.percentile : 0;
-                const percentDetect = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
-                const covid_id = `${item.date_start}_${item.wwtp_id}`;
-
-                await db.run(insertQuery, [
-                    covid_id,
-                    item.wwtp_jurisdiction,
-                    item.county_names,
-                    item.county_fips,
-                    item.key_plot_id,
-                    item.wwtp_id,
-                    item.population_served,
-                    percentChange,
-                    covidLevel,
-                    percentDetect,
-                    item.date_start,
-                    item.date_end
-                ]);
-            }
-
-            calculateRisk();
-        }
-
-        res.status(200).json({ message: 'Data fetched and inserted successfully' });
-    } catch (error) {
-        console.error('Error fetching or inserting data:', error);
-        res.status(500).json({ error: 'Failed to fetch or insert data into the database' });
+    if (dayLimit) {
+        startDate.setDate(endDate.getDate() - parseInt(dayLimit, 10));
     }
-});
 
-app.post('/update/30', async (req, res) => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 30);
+    if (dateLimit) {
+        const dateLimitDate = new Date(dateLimit);
+
+        if (dayLimit && dateLimitDate > startDate) {
+            startDate = dateLimitDate;
+        } else if (!dayLimit) {
+            startDate = dateLimitDate;
+        }
+    } else if (!dayLimit) {
+        return res.status(400).json({ error: 'Please specify either a date limit or a day limit.' });
+    }
 
     const dates = getDates(startDate, endDate);
 
@@ -182,10 +149,12 @@ app.post('/update/30', async (req, res) => {
             calculateRisk();
         }
 
-        res.status(200).json({ message: 'Data for the last 30 days fetched and inserted successfully.' });
+        res.status(200).json({ 
+            message: `Data fetched and inserted successfully for dates from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}.`
+        });
     } catch (error) {
         console.error('Error fetching or inserting data:', error);
-        res.status(500).json({ error: 'Failed to fetch or insert data into the database for the last 30 days.' });
+        res.status(500).json({ error: 'Failed to fetch or insert data into the database.' });
     }
 });
 

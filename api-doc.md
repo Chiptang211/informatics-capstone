@@ -68,48 +68,37 @@ See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wa
 ## API
 Base url: "https://geohealth.chiptang.com" + request
 
-### 1. Update All
-**DO NOT USE** unless you have Chip's permission, it takes around 5 minutes to pull all the data!
-- **Request URL:** `/update/all`
-- **Request Format:** None required
+### 1. Update Covid Data
+**DO NOT USE** unless you have Chip's permission, it takes around an hour to pull all the data!
+- **Request URL:** `/update/covid`
+- **Request Format:** Text
 - **Request Type:** POST
-- **Description:** Fetches wastewater data since January 1, 2022, to today's date and updates the database with new records.
+- **Description:** This endpoint updates the COVID-19 wastewater data in the database based on either a specific date or a number of days back from the current date. It is designed to fetch and insert new data for either the specified dateLimit or for the last number of days specified by dayLimit.
+- **Query Parameters:**
+  - **dateLimit (optional):** A specific date from which to start updating the data. The date should be in the format YYYY-MM-DD. If provided, the update will start from this date to the current date.
+  - **dayLimit (optional):** Specifies the number of days back from today to start updating the data. This parameter is an integer.
 - **Example Request:**
-None required
+```
+TEXT
+POST /update/covid?dateLimit=2024-01-01
+POST /update/covid?dayLimit=100
+POST /update/covid?dateLimit=2024-01-01&dayLimit=100
+```
 
 - **Example Response:**
 ```
 JSON
 {
-  "message": "Data fetched and inserted successfully"
+  "message": "Data fetched and inserted successfully for dates from 2024-01-01 to 2024-04-01."
 }
 ```
 
 - **Error Handling:**
-  - Returns 500 for internal server errors or if there is a failure in fetching or inserting data into the database.
+  - Returns 400 if neither dateLimit nor dayLimit is provided in the request. This error is to ensure that the request includes necessary parameters to execute the update operation.
+  - Returns 500 if there is a failure in fetching or processing the data, or in interacting with the database.
 
 
-### 2. Update Last 30 Days
-- **Request URL:** `/update/30`
-- **Request Format:** None required
-- **Request Type:** POST
-- **Description:** Fetches wastewater data for the last 30 days from today and updates the database with these records.
-- **Example Request:**
-None required
-
-- **Example Response:**
-```
-JSON
-{
-  "message": "Data for the last 30 days fetched and inserted successfully."
-}
-```
-
-- **Error Handling:**
-  - Returns 500 for internal server errors or if there is a failure in fetching or inserting data into the database.
-
-
-### 3. Fetch Covid Data by Zipcode
+### 2. Fetch Covid Data by Zipcode
 - **Request URL:** `/fetch/data/covid`
 - **Request Format:** Text
 - **Request Type:** GET
@@ -121,7 +110,8 @@ JSON
 - **Example Request:**
 ```
 TEXT
-/fetch/data/covid?zipcode=99258&fromDate=2024-04-12&toDate=2024-04-13
+POST/fetch/data/covid?zipcode=99258
+POST/fetch/data/covid?zipcode=99258&fromDate=2024-04-12&toDate=2024-04-13
 ```
 
 - **Example Response:**
@@ -171,7 +161,7 @@ JSON
   - Returns 500 for internal server errors or if there is a failure in querying the database.
 
 
-### 4. Fetch Facility Data by Zipcode
+### 3. Fetch Facility Data by Zipcode
 - **Request URL:** `/fetch/data/facility`
 - **Request Format:** Text
 - **Request Type:** GET
@@ -182,7 +172,8 @@ JSON
 - **Example Request:**
 ```
 TEXT
-/fetch/data/famility?zipcode=99258&limit=4
+POST/fetch/data/famility?zipcode=99258
+POST/fetch/data/famility?zipcode=99258&limit=4
 ```
 
 - **Example Response:**
