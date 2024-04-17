@@ -32,7 +32,7 @@ function getDates(startDate, endDate) {
 async function fetchDataForDate(date) {
     const fetch = (await import('node-fetch')).default;
     const formattedDate = date.toISOString().split('T')[0];
-    const apiUrl = `https://data.cdc.gov/resource/2ew6-ywp6.json?wwtp_jurisdiction=Washington&date_start=${formattedDate}&$limit=50000`;
+    const apiUrl = `https://data.cdc.gov/resource/2ew6-ywp6.json?date_end=${formattedDate}&$limit=50000`;
     const response = await fetch(apiUrl);
     const data = await response.json();
     return data;
@@ -42,46 +42,45 @@ async function calculateRisk() {
     const db = await getDBConnection();
     try {
         // Fetch all data for calculation, ordered by plant and date
-        const rows = await db.all(`SELECT covid_id, plant_id, percent_change, date_start FROM covid_wastewater ORDER BY plant_id, date_start`);
+        const rows = await db.all(`SELECT covid_id, facility_cdc_id, percent_change, date_start FROM covid_wastewater ORDER BY facility_cdc_id, date_start`);
 
         // To hold smoothed values for each plant
         const smoothData = {};
         const riskScores = {};
 
         rows.forEach(row => {
-            if (!smoothData[row.plant_id]) {
-                smoothData[row.plant_id] = []; // Initialize array for new plants
+            if (!smoothData[row.facility_cdc_id]) {
+                smoothData[row.facility_cdc_id] = []; // Initialize array for new plants
             }
 
             // Push current percent_change into the array for the plant
-            smoothData[row.plant_id].push(row.percent_change);
+            smoothData[row.facility_cdc_id].push(row.percent_change);
 
             // Calculate smoothed value using a simple moving average, considering only the last 3 values
-            if (smoothData[row.plant_id].length > 3) {
-                smoothData[row.plant_id].shift(); // Remove the oldest entry if more than 3
+            if (smoothData[row.facility_cdc_id].length > 3) {
+                smoothData[row.facility_cdc_id].shift(); // Remove the oldest entry if more than 3
             }
 
-            const average = smoothData[row.plant_id].reduce((a, b) => a + (b || 0), 0) / smoothData[row.plant_id].length;
+            const average = smoothData[row.facility_cdc_id].reduce((a, b) => a + (b || 0), 0) / smoothData[row.facility_cdc_id].length;
             const pcrConcSmoothed = isNaN(average) ? null : average;
 
             // Determine the risk score based on smoothed PCR concentration
             let riskScore;
             if (pcrConcSmoothed <= 25) {
-                riskScore = 1;
+                riskScore = "low";
             } else if (pcrConcSmoothed <= 75) {
-                riskScore = 5;
+                riskScore = "mid";
             } else {
-                riskScore = 10;
+                riskScore = "high";
             }
 
             // Store the latest risk score for each plant
-            riskScores[row.plant_id] = { score: riskScore, date: row.date_start };
+            riskScores[row.facility_cdc_id] = { score: riskScore, date: row.date_start };
 
             // Update database with smoothed value and risk score
             db.run(`UPDATE covid_wastewater SET pcr_conc_smoothed = ?, risk_score = ? WHERE covid_id = ?`, [pcrConcSmoothed, riskScore, row.covid_id]);
         });
 
-        console.log('PCR concentrations smoothed and risk scores updated successfully');
         console.log('Latest risk scores:', riskScores);
     } catch (error) {
         console.error('Error calculating smoothed PCR concentrations or updating risk scores:', error);
@@ -89,7 +88,7 @@ async function calculateRisk() {
 }
 
 app.post('/update/all', async (req, res) => {
-    const startDate = new Date('2022-01-01');
+    const startDate = new Date('2024-01-01');
     const endDate = new Date();
     const dates = getDates(startDate, endDate);
 
@@ -98,14 +97,20 @@ app.post('/update/all', async (req, res) => {
 
         for (const date of dates) {
             const data = await fetchDataForDate(date);
-            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, percent_change, detect_proportion, percentile, date_start, date_end)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+            const insertQuery = `
+                INSERT INTO covid_wastewater (
+                    covid_id, state, county, fips_id, facility_name, facility_cdc_id, population_served,
+                    percent_change, covid_level, percent_detect, date_start, date_end
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (covid_id) DO NOTHING
+            `;
 
             for (const item of data) {
-                const percentChange15d = item.ptc_15d !== null ? item.ptc_15d : 0;
-                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
-
+                const percentChange = item.ptc_15d !== null ? item.ptc_15d : 0;
+                const covidLevel = item.percentile !== null ? item.percentile : 0;
+                const percentDetect = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
                 const covid_id = `${item.date_start}_${item.wwtp_id}`;
+
                 await db.run(insertQuery, [
                     covid_id,
                     item.wwtp_jurisdiction,
@@ -114,9 +119,9 @@ app.post('/update/all', async (req, res) => {
                     item.key_plot_id,
                     item.wwtp_id,
                     item.population_served,
-                    percentChange15d,
-                    detectProp15d,
-                    item.percentile || 'default_percentile_value',
+                    percentChange,
+                    covidLevel,
+                    percentDetect,
                     item.date_start,
                     item.date_end
                 ]);
@@ -144,14 +149,20 @@ app.post('/update/30', async (req, res) => {
 
         for (const date of dates) {
             const data = await fetchDataForDate(date);
-            const insertQuery = `INSERT INTO covid_wastewater (covid_id, state, county_name, county_fips, plant_name, plant_id, population, percent_change, detect_proportion, percentile, date_start, date_end)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(covid_id) DO NOTHING`;
+            const insertQuery = `
+                INSERT INTO covid_wastewater (
+                    covid_id, state, county, fips_id, facility_name, facility_cdc_id, population_served,
+                    percent_change, covid_level, percent_detect, date_start, date_end
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (covid_id) DO NOTHING
+            `;
 
             for (const item of data) {
-                const percentChange15d = item.ptc_15d !== null ? item.ptc_15d : 0;
-                const detectProp15d = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
-
+                const percentChange = item.ptc_15d !== null ? item.ptc_15d : 0;
+                const covidLevel = item.percentile !== null ? item.percentile : 0;
+                const percentDetect = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
                 const covid_id = `${item.date_start}_${item.wwtp_id}`;
+
                 await db.run(insertQuery, [
                     covid_id,
                     item.wwtp_jurisdiction,
@@ -160,9 +171,9 @@ app.post('/update/30', async (req, res) => {
                     item.key_plot_id,
                     item.wwtp_id,
                     item.population_served,
-                    percentChange15d,
-                    detectProp15d,
-                    item.percentile || 'default_percentile_value',
+                    percentChange,
+                    covidLevel,
+                    percentDetect,
                     item.date_start,
                     item.date_end
                 ]);
@@ -178,26 +189,27 @@ app.post('/update/30', async (req, res) => {
     }
 });
 
-app.get('/fetch/data', async (req, res) => {
+app.get('/fetch/data/covid', async (req, res) => {
     const { zipcode, fromDate, toDate } = req.query;
     console.log("Received parameters:", zipcode, fromDate, toDate);
 
     try {
         const db = await getDBConnection();
-        const lookupQuery = `SELECT fips_code FROM zipcode_lookup WHERE zip_code = ?`;
+        const lookupQuery = `SELECT fips_id FROM zipcode_lookup WHERE zipcode = ?`;
         const fipsRecord = await db.get(lookupQuery, [zipcode]);
+        console.log("lookupQuery:", lookupQuery);
         if (!fipsRecord) {
             return res.status(404).json({ status: 'error', message: 'Zipcode not found.' });
         }
 
-        const fipsCode = fipsRecord.fips_code;
-        console.log("FIPS Code:", fipsCode);
+        const fipsId = fipsRecord.fips_id;
+        console.log("FIPS ID:", fipsId);
 
         let query = `
-            SELECT plant_id, detect_proportion, percentile, percent_change, risk_score, date_end
+            SELECT facility_cdc_id, covid_level, percent_change, percent_detect, risk_score, date_end
             FROM covid_wastewater
-            WHERE ',' || county_fips || ',' LIKE ?`;
-        let params = [`%,${fipsCode},%`];
+            WHERE ',' || fips_id || ',' LIKE ?`;
+        let params = [`%,${fipsId},%`];
 
         if (fromDate || toDate) {
             query += ` AND date_end BETWEEN ? AND ?`;
@@ -221,6 +233,48 @@ app.get('/fetch/data', async (req, res) => {
     }
 });
 
+
+app.get('/fetch/data/facility', async (req, res) => {
+    const { zipcode, limit = 10 } = req.query;
+    if (!zipcode) {
+        return res.status(400).json({ error: 'Zipcode is required' });
+    }
+
+    const apiKey = 'AIzaSyAURpdvZugKcAP8Sf8ZUVmg7gD6oLSA2x4';
+    const googleApiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${zipcode}&key=${apiKey}`;
+
+    try {
+        const { default: fetch } = await import('node-fetch');
+
+        const response = await fetch(googleApiUrl);
+        const json = await response.json();
+
+        if (json.status !== 'OK' || json.results.length === 0) {
+            return res.status(404).json({ error: 'No location found for the provided zipcode.' });
+        }
+
+        const location = json.results[0].geometry.location;
+        console.log(location);
+
+        const db = await getDBConnection();
+        const query = `
+            SELECT *, ROUND(
+                6371 * acos(
+                cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) +
+                sin(radians(?)) * sin(radians(latitude))
+                ), 1
+            ) AS distance
+            FROM plant_lookup
+            ORDER BY distance
+            LIMIT ?;
+        `;
+        const facilities = await db.all(query, [location.lat, location.lng, location.lat, limit]);
+        res.json(facilities);
+    } catch (error) {
+        console.error('Failed to retrieve location or database error:', error);
+        res.status(500).json({ error: 'Failed to process your request.' });
+    }
+});
 
 
 app.use(express.static('public'));

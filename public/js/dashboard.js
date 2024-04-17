@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     function fetchAndDisplayData(zipcode) {
-        const apiUrl = `https://geohealth.chiptang.com/fetch/data?zipcode=${zipcode}`;
+        const apiUrl = `https://geohealth.chiptang.com/fetch/data/covid?zipcode=${zipcode}`;
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {

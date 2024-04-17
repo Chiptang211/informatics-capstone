@@ -12,45 +12,45 @@ Last Updated at 6:00 AM PDT on March 30th
 - **Data Example:** "Washington"
 - **Data Description:** State
 
-### county_name
+### county
 - **Data Tyoe:** TEXT NOT NULL
 - **Data Example:** "Spokane or "King,Snohomish"
 - **Data Description:** The county and county-equivalent names corresponding to the FIPS codes in 'county_fips'.
 
-### county_fips
+### fips_id
 - **Data Tyoe:** INTEGER NOT NULL
 - **Data Example:** 53063 or 53061,53033
 - **Data Description:** 5-digit numeric FIPS codes of all counties and county equivalents served by this sampling site.
 
-### plant_name
+### facility_name
 - **Data Tyoe:** TEXT NOT NULL
 - **Data Example:** "NWSS_wa_760_Treatment plant_raw wastewater"
 - **Data Description:** A unique identifier for the geographic area served by this sampling site, called a sewershed. This is an underscore-separated concatenation of the fields 'wwtp_jurisdiction', 'wwtp_id', and, if 'sample_location' is "upstream", then also 'sample_location_specify', and sample_matrix.
 
-### plant_id
+### facility_cdc_id
 - **Data Tyoe:** INTEGER NOT NULL
 - **Data Example:** 760
 - **Data Description:** A unique identifier for wastewater treatment plants. This is an arbitrary integer used to provide a unique, but anonymous identifier for a wastewater treatment plant. This identifier is consistent over time, such that the same plant retains the same ID regardless of the addition or subtraction of other plants from the data set.
 
-### population
+### population_served
 - **Data Tyoe:** INTEGER NOT NULL
 - **Data Example:** 120000
 - **Data Description:** Estimated number of persons served by this sampling site (i.e., served by this wastewater treatment plant or, if 'sample_location' is "upstream", then by this upstream location).
 
-### percent_change
+### percent_change (ptc_15d)
 - **Data Tyoe:** NUMERIC
 - **Data Example:** 2737
 - **Data Description:** The percent change in SARS-CoV-2 RNA levels over the 15-day interval defined by 'date_start' and 'date_end'. Percent change is calculated as the modeled change over the interval, based on linear regression of log-transformed SARS-CoV-2 levels. SARS-CoV-2 RNA levels are wastewater concentrations that have been normalized for wastewater composition.
 
-### detect_proportion
-- **Data Tyoe:** NUMERIC
-- **Data Example:** 100
-- **Data Description:** The proportion of tests with SARS-CoV-2 detected, meaning a cycle threshold (Ct) value <40 for RT-qPCR or at least 3 positive droplets/partitions for RT-ddPCR, by sewershed over the 15-day window defined by 'date_start' and "date_end'. The detection proportion is the percent calculated by dividing the 15-day rolling sum of SARS-CoV-2 detections by the 15-day rolling sum of the number of tests for each sewershed and multiplying by 100.
-
-### percentile
+### covid_level (percentile)
 - **Data Tyoe:** NUMERIC
 - **Data Example:** 6.6
 - **Data Description:** This metric shows whether SARS-CoV-2 virus levels at a site are currently higher or lower than past historical levels at the same site. 0% means levels are the lowest they have been at the site; 100% means levels are the highest they have been at the site. Public health officials watch for increasing levels of the virus in wastewater over time and use this data to help make public health decisions.
+
+### percent_detect (detect_prop_15d)
+- **Data Tyoe:** NUMERIC
+- **Data Example:** 100
+- **Data Description:** The proportion of tests with SARS-CoV-2 detected, meaning a cycle threshold (Ct) value <40 for RT-qPCR or at least 3 positive droplets/partitions for RT-ddPCR, by sewershed over the 15-day window defined by 'date_start' and "date_end'. The detection proportion is the percent calculated by dividing the 15-day rolling sum of SARS-CoV-2 detections by the 15-day rolling sum of the number of tests for each sewershed and multiplying by 100.
 
 ### date_start
 - **Data Tyoe:** TEXT NOT NULL
@@ -109,19 +109,19 @@ JSON
   - Returns 500 for internal server errors or if there is a failure in fetching or inserting data into the database.
 
 
-### 3. Fetch Data by Zipcode
-- **Request URL:** `/fetch/data`
+### 3. Fetch Covid Data by Zipcode
+- **Request URL:** `/fetch/data/covid`
 - **Request Format:** Text
 - **Request Type:** GET
 - **Description:**  Fetches various metrics from the covid_wastewater table based on zipcode. Date ranges are optional. Note that there might be multiple wastewater plants associated with a given zipcode, so it will return all relevant data.
 - **Query Parameters:**
-  - **zipcode:** The postal zip code used to look up the corresponding county FIPS code.
+  - **zipcode:** The postal zipcode.
   - **fromDate (optional):** The start date for filtering records.
   - **toDate (optional):** The end date for filtering records.
 - **Example Request:**
 ```
 TEXT
-/fetch/data?zipcode=98077&fromDate=2024-04-10&toDate=2024-04-11
+/fetch/data/covid?zipcode=99258&fromDate=2024-04-12&toDate=2024-04-13
 ```
 
 - **Example Response:**
@@ -131,36 +131,36 @@ JSON
   "status": "success",
   "data": [
     {
-      "plant_id": 760,
-      "detect_proportion": 100,
-      "percentile": 3,
+      "facility_cdc_id": 760,
+      "covid_level": 3,
       "percent_change": -56,
-      "risk_score": 1,
-      "date_end": "2024-04-10"
+      "percent_detect": 100,
+      "risk_score": "low",
+      "date_end": "2024-04-12"
     },
     {
-      "plant_id": 759,
-      "detect_proportion": 100,
-      "percentile": 5.667,
-      "percent_change": -78,
-      "risk_score": 1,
-      "date_end": "2024-04-10"
-    },
-    {
-      "plant_id": 760,
-      "detect_proportion": 100,
-      "percentile": 3,
-      "percent_change": -56,
-      "risk_score": 1,
-      "date_end": "2024-04-11"
-    },
-    {
-      "plant_id": 759,
-      "detect_proportion": 100,
-      "percentile": 5.667,
+      "facility_cdc_id": 759,
+      "covid_level": 5.667,
       "percent_change": -99,
-      "risk_score": 1,
-      "date_end": "2024-04-11"
+      "percent_detect": 100,
+      "risk_score": "low",
+      "date_end": "2024-04-12"
+    },
+    {
+      "facility_cdc_id": 760,
+      "covid_level": 3,
+      "percent_change": -20,
+      "percent_detect": 100,
+      "risk_score": "low",
+      "date_end": "2024-04-13"
+    },
+    {
+      "facility_cdc_id": 759,
+      "covid_level": 5.667,
+      "percent_change": null,
+      "percent_detect": 100,
+      "risk_score": "low",
+      "date_end": "2024-04-13"
     }
   ]
 }
@@ -171,3 +171,72 @@ JSON
   - Returns 500 for internal server errors or if there is a failure in querying the database.
 
 
+### 4. Fetch Facility Data by Zipcode
+- **Request URL:** `/fetch/data/facility`
+- **Request Format:** Text
+- **Request Type:** GET
+- **Description:**  Fetches nearest facility information based on the provided zipcode. The limit is optional, and by default, it is set to 10 results.
+- **Query Parameters:**
+  - **zipcode:** The postal zipcode for which the user seeks facility information.
+  - **limit (optional):** The maximum number of facility results to return. Default is 10.
+- **Example Request:**
+```
+TEXT
+/fetch/data/famility?zipcode=99258&limit=4
+```
+
+- **Example Response:**
+```
+JSON
+[
+  {
+    "npdes_id": "WA0024473",
+    "facility_name": "CITY OF SPOKANE - RIVERSIDE PARK AWWTP",
+    "address": "4401 N AUBREY L WHITE PKWY",
+    "city": "SPOKANE",
+    "state": "WA",
+    "zipcode": 99205,
+    "latitude": 47.693416,
+    "longitude": -117.472387,
+    "distance": 5.9
+  },
+  {
+    "npdes_id": "ID0022853",
+    "facility_name": "COEUR D ALENE ADVANCED WASTEWATER TREATMENT PLANT",
+    "address": "765 WEST HUBBARD AVENUE",
+    "city": "COEUR D ALENE",
+    "state": "ID",
+    "zipcode": 83814,
+    "latitude": 47.681933,
+    "longitude": -116.796192,
+    "distance": 45.6
+  },
+  {
+    "npdes_id": "ID0020842",
+    "facility_name": "SANDPOINT WWTP",
+    "address": "723 SOUTH ELLA STREET",
+    "city": "SANDPOINT",
+    "state": "ID",
+    "zipcode": 83864,
+    "latitude": 48.262701,
+    "longitude": -116.560469,
+    "distance": 91.3
+  },
+  {
+    "npdes_id": "ID0022055",
+    "facility_name": "WASTEWATER TREATMENT PLANT",
+    "address": "900 7TH AVENUE NORTH",
+    "city": "LEWISTON",
+    "state": "ID",
+    "zipcode": 83501,
+    "latitude": 46.427106,
+    "longitude": -117.022102,
+    "distance": 140.9
+  }
+]
+```
+
+- **Error Handling:**
+  - Returns 400 if the zipcode parameter is missing in the request.
+  - Returns 404 if no facilities are found near the specified zipcode or if the zipcode cannot be geolocated.
+  - Returns 500 if there is an error in fetching data from the geolocation API or querying the database.
