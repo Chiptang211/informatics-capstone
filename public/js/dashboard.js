@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function showDashboard() {
+        hideAllSections();
+        showSection('dashboard');
+    }
+
     document.querySelectorAll('.sidebar a').forEach(function(link) {
         // Only add internal navigation handling to hash links
         if (link.getAttribute('href').startsWith('#')) {
@@ -51,18 +56,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     const statisticsRiskScoreElement = document.getElementById('statistics_disease_score');
                     statisticsRiskScoreElement.textContent = riskScore;
     
-                    // Apply gradient color based on risk level
-                    let gradientColor;
-                    if (riskScore <= 3) {
-                        gradientColor = 'linear-gradient(to right, #00ff00, #33ff33)';
-                    } else if (riskScore <= 6) {
-                        gradientColor = 'linear-gradient(to right, #ffa500, #ffcc66)';
-                    } else {
-                        gradientColor = 'linear-gradient(to right, #ff0000, #ff6666)';
-                    }
-                    statisticsRiskScoreElement.style.backgroundImage = gradientColor;
-                    statisticsRiskScoreElement.style.webkitBackgroundClip = 'text'; /* For Safari */
-                    statisticsRiskScoreElement.style.color = 'transparent'; /* For Safari */
+                    // Update the risk image based on the risk score
+                    updateRiskImage(riskScore);
                 } else {
                     console.error('No data returned for this zipcode:', zipcode);
                 }
@@ -71,34 +66,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Fetching error:', error);
             });
     }
-    
 
-    // Function to render chart
-    /*function renderChart(data) {
-        // Your chart rendering code using a library like Chart.js
-        // Example:
-        const ctx = document.getElementById('particulateChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.map(item => item.label),
-                datasets: [{
-                    label: 'COVID Statistics',
-                    data: data.map(item => item.value),
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }*/
+    function updateRiskImage(riskScore) {
+        let riskImageSrc = '';
+        if (riskScore <= 3) {
+            riskImageSrc = 'img/lowRisk.png';
+        } else if (riskScore > 3 && riskScore <= 6) {
+            riskImageSrc = 'img/mediumRisk.png';
+        } else if (riskScore > 6) {
+            riskImageSrc = 'img/highRisk.png';
+        }
+        
+        const riskImageElement = document.querySelector('#viral_detection_graphs img');
+        if (riskImageElement) {
+            riskImageElement.src = riskImageSrc;
+            riskImageElement.alt = riskScore <= 3 ? 'Low Risk' : riskScore <= 6 ? 'Medium Risk' : 'High Risk';
+        }
+    }
 
     // Assuming you have some form or mechanism on index.html to initiate the search
     const urlParams = new URLSearchParams(window.location.search);
@@ -107,10 +91,20 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchAndDisplayData(zipcode);
     }
 
+    const viralDetectionGraphs = document.getElementById('viral_detection_graphs');
+    if (viralDetectionGraphs) {
+        viralDetectionGraphs.style.cursor = 'pointer';
+        viralDetectionGraphs.addEventListener('click', function() {
+            // Redirect to the dashboard URL or simulate a click on the dashboard sidebar link
+            window.location.href = 'dashboard.html'; // Change this URL to your actual dashboard page URL if different
+        });
+    }
+
     // Show the initial dashboard section
     hideAllSections();
     showSection('dashboard');
 });
+
 
 
 
