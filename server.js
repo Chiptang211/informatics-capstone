@@ -208,19 +208,21 @@ app.get('/fetch/data/covid', async (req, res) => {
         const db = await getDBConnection();
         const lookupQuery = `SELECT fips_id FROM zipcode_lookup WHERE zipcode = ?`;
         const fipsRecord = await db.get(lookupQuery, [zipcode]);
-        console.log("lookupQuery:", lookupQuery);
+        console.log("Lookup Query executed:", lookupQuery, "with zipcode:", zipcode);
+
         if (!fipsRecord) {
+            console.log("No FIPS ID found for zipcode:", zipcode);
             return res.status(404).json({ status: 'error', message: 'Zipcode not found.' });
         }
 
         const fipsId = fipsRecord.fips_id;
-        console.log("FIPS ID:", fipsId);
+        console.log("FIPS ID found:", fipsId);
 
         let query = `
             SELECT facility_cdc_id, covid_level, percent_change, percent_detect, risk_score, concentration, date_end
             FROM covid_wastewater
-            WHERE (',' || fips_id || ',' LIKE ?) AND date_end BETWEEN ? AND ?`;
-        let params = [`%,${fipsId},%`, fromDate, toDate];
+            WHERE (',' || fips_id || ',' LIKE ?)`;
+        let params = [`%,${fipsId},%`];
 
         if (fromDate && toDate) {
             query += ` AND date_end BETWEEN ? AND ?`;
@@ -234,6 +236,7 @@ app.get('/fetch/data/covid', async (req, res) => {
         }
 
         console.log("Final query:", query);
+        console.log("Query parameters:", params);
         const records = await db.all(query, params);
 
         if (records.length > 0) {
@@ -242,11 +245,12 @@ app.get('/fetch/data/covid', async (req, res) => {
                 data: records
             });
         } else {
+            console.log("Query executed but no records found.");
             res.status(404).json({ status: 'error', message: 'No matching records found.' });
         }
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).json({ status: 'error', message: 'Failed to query the database.' });
+        res.status(500).json({ status: 'error', message: 'Failed to query the database.', error: error.message });
     }
 });
 
