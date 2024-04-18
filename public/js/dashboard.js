@@ -114,6 +114,34 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function initMap(zipcode) {
+        const mapOptions = {
+            center: { lat: 47.660709, lng: -117.404107 },
+            zoom: 8,
+        };
+        const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+        const url = `https://geohealth.chiptang.com/fetch/data/facility?zipcode=${zipcode}&limit=10`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(facility => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: facility.latitude, lng: facility.longitude },
+                        map: map,
+                        title: facility.facility_name
+                    });
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${facility.facility_name}</h3><p>${facility.address}, ${facility.city}, ${facility.state}, ${facility.zipcode}</p>`
+                    });
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                });
+            })
+            .catch(error => console.error("Error loading facilities:", error));
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     const zipcode = urlParams.get('zipcode');
     if (zipcode) {
