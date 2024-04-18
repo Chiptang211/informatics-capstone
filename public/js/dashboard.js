@@ -39,12 +39,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data && data.status === 'success' && data.data.length > 0) {
                     currentZipcode = zipcode;
                     document.querySelectorAll('#statistics_zipcode').forEach(el => el.textContent = zipcode);
-
-                    const latestData = data.data[0]; // Assuming the first entry is the most relevant
-                    const riskScore = latestData.risk_score; // Use the risk score as is
+                    const latestData = data.data[0];
+                    const riskScore = latestData.risk_score;
                     updateRiskScoreDisplay(riskScore);
                     updateRiskImage(riskScore);
                     updateDashboardRiskImage(riskScore);
+                    renderChart(data.data);
                 } else {
                     console.error('No data returned for this zipcode:', zipcode);
                 }
@@ -56,66 +56,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateRiskImage(riskScore) {
         const riskImageElement = document.getElementById('riskImage');
-        let imageName;
-        switch (riskScore.toLowerCase()) {
-            case 'low':
-                imageName = 'lowRisk';
-                break;
-            case 'medium':  // Adjusted to match the actual filename
-                imageName = 'mediumRisk';
-                break;
-            case 'high':
-                imageName = 'highRisk';
-                break;
-            default:
-                imageName = 'unknownRisk';  // Handle any unexpected cases
-                break;
-        }
+        let imageName = riskScore.toLowerCase() + 'Risk';
         riskImageElement.src = `img/${imageName}.png`;
-        riskImageElement.alt = `${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)} Risk`;
+        riskImageElement.alt = `Risk Level: ${riskScore}`;
     }
-    
+
     function updateDashboardRiskImage(riskScore) {
         const dashboardRiskImage = document.querySelector('#viral_detection_graphs img');
-        let imageName;
-        switch (riskScore.toLowerCase()) {
-            case 'low':
-                imageName = 'lowRisk';
-                break;
-            case 'medium':  // Adjusted to match the actual filename
-                imageName = 'mediumRisk';
-                break;
-            case 'high':
-                imageName = 'highRisk';
-                break;
-            default:
-                imageName = 'unknownRisk';  // Consider handling unknown cases
-                break;
-        }
+        let imageName = riskScore.toLowerCase() + 'Risk';
         dashboardRiskImage.src = `img/${imageName}.png`;
-        dashboardRiskImage.alt = `COVID Risk Level: ${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)}`;
+        dashboardRiskImage.alt = `COVID Risk Level: ${riskScore}`;
     }
-    
 
     function updateRiskScoreDisplay(riskScore) {
         const riskScoreElement = document.getElementById('statistics_disease_score');
         riskScoreElement.textContent = riskScore.charAt(0).toUpperCase() + riskScore.slice(1);
-
-        // Remove previous classes
         riskScoreElement.classList.remove('risk-low', 'risk-medium', 'risk-high');
+        riskScoreElement.classList.add('risk-' + riskScore.toLowerCase());
+    }
 
-        // Add the appropriate class based on the risk score
-        switch (riskScore.toLowerCase()) {
-            case 'low':
-                riskScoreElement.classList.add('risk-low');
-                break;
-            case 'medium':
-                riskScoreElement.classList.add('risk-medium');
-                break;
-            case 'high':
-                riskScoreElement.classList.add('risk-high');
-                break;
-        }
+    function renderChart(data) {
+        const ctx = document.getElementById('particulateChart').getContext('2d');
+        const groupedData = {};
+        data.forEach(item => {
+            const date = new Date(item.date_end).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            groupedData[date] = groupedData[date] || [];
+            groupedData[date].push(item.covid_level);
+        });
+
+        const dates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
+        const covidLevels = dates.map(date => {
+            const levels = groupedData[date];
+            return levels.reduce((acc, level) => acc + level, 0) / levels.length;
+        });
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'COVID Level Over Time',
+                    data: covidLevels,
+                    borderColor: '#675AFF',  // Purple color
+                    backgroundColor: '#675AFF',  // Purple color
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
     const urlParams = new URLSearchParams(window.location.search);
