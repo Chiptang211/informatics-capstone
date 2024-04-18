@@ -182,6 +182,24 @@ app.post('/update/covid', async (req, res) => {
     }
 });
 
+app.post('/delete/covid', async (req, res) => {
+    try {
+        const db = await getDBConnection();
+        await db.run(`DELETE FROM covid_wastewater`);
+
+        console.log('All records have been deleted from covid_wastewater table.');
+        res.status(200).json({
+            message: "All data has been successfully deleted from the covid_wastewater table."
+        });
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({
+            message: 'Failed to delete data from the covid_wastewater table.',
+            error: error.message
+        });
+    }
+});
+
 app.get('/fetch/data/covid', async (req, res) => {
     const { zipcode, fromDate, toDate } = req.query;
     console.log("Received parameters:", zipcode, fromDate, toDate);
@@ -201,8 +219,8 @@ app.get('/fetch/data/covid', async (req, res) => {
         let query = `
             SELECT facility_cdc_id, covid_level, percent_change, percent_detect, risk_score, concentration, date_end
             FROM covid_wastewater
-            WHERE fips_id = ?`;
-        let params = [fipsId];
+            WHERE (',' || fips_id || ',' LIKE ?) AND date_end BETWEEN ? AND ?`;
+        let params = [`%,${fipsId},%`, fromDate, toDate];
 
         if (fromDate && toDate) {
             query += ` AND date_end BETWEEN ? AND ?`;
