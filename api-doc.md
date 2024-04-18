@@ -243,18 +243,18 @@ JSON
 
 ### 4. Update Feedback Data
 - **Request URL:** `/update/feedback`
-- **Request Format:** Text
+- **Request Format:** JSON
 - **Request Type:** POST
-- **Description:**  Pushes most recent feedback data based on user input within our website.
-- **Query Parameters:** 
-Necessary:Email Address, 5StarRating, LikeFeedback, ImproveFeedback
+- **Description:**  Allow user to submit feedback.
 - **Example Request:**
 ```
-TEXT
-POST /update/covid?5StarRating=4
-POST /update/covid?EmailAddress="blabla@uw.edu"
-POST /update/covid?likeFeedback= "I liked the user interface!"
-POST /update/covid?ImproveFeedback= "I thought there could be more interactive graphs within the stats page!"
+JSON
+{
+  "email": "name@example.com",
+  "rating": 4,
+  "feedbackLike": "I liked the user interface!",
+  "feedbackImprove": "I thought there could be more interactive graphs within the stats page!"
+}
 ```
 
 - **Example Response:**

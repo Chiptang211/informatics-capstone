@@ -275,6 +275,36 @@ app.get('/fetch/data/facility', async (req, res) => {
     }
 });
 
+app.post('/update/feedback', async (req, res) => {
+    const { email, rating, feedbackLike, feedbackImprove } = req.body;
+
+    if (!email || rating === undefined) {
+        return res.status(400).json({ message: "Missing required fields 'email' or 'rating'." });
+    }
+
+    try {
+        const db = await getDBConnection();
+        const feedbackDate = new Date().toISOString().split('T')[0]; // ISO date format YYYY-MM-DD
+        const feedbackTime = new Date().getTime(); // Unix timestamp for time
+
+        const insertQuery = `
+            INSERT INTO feedback (feedback_date, feedback_time, email, rating, feedback_like, feedback_improve)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await db.run(insertQuery, [feedbackDate, feedbackTime, email, rating, feedbackLike, feedbackImprove]);
+
+        res.status(200).json({
+            message: "Data fetched and inserted successfully for feedback up to current date."
+        });
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({
+            message: 'Failed to insert feedback data.',
+            error: error.message
+        });
+    }
+});
+
 
 app.use(express.static('public'));
 const PORT = process.env.PORT || 8000;
