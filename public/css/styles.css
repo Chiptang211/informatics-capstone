@@ -16,7 +16,6 @@ html {
     font-weight: 200;
  }
  
- 
  body {
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
@@ -24,7 +23,6 @@ html {
     padding: 0;
     height: 100%;
  }
- 
  
  .navbar-container {
     position: fixed;
@@ -34,7 +32,6 @@ html {
     width: calc(100% + 40px);
     margin: 0 -20px;
  }
- 
  
  nav {
     background: #FFFFFF;
@@ -443,9 +440,6 @@ html {
 #statistics_disease_score {
     font-size: 4em;
     font-weight: bold;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 #statistics_zipcode {
@@ -478,17 +472,16 @@ html {
 
 .risk-score-container {
     flex: 1; /* Lesser space for the risk score container */
-    text-align: center; /* Align text to the right */
-    margin-right: 40px;
+    text-align: center; /* Align text to the center */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Center content vertically */
+    padding-right: 0px; /* Adjust padding if necessary */
 }
 
 .risk-score-label {
     font-size: 1.5em; /* Set the size of the label */
-    margin-bottom: 0; /* Removes space between the label and the number */
-    padding-right: 0px; /* Padding on the right if needed for alignment */
+    margin-bottom: 10px; /* Space between the label and the number */
 }
 
 .risk-score-value {
@@ -496,8 +489,8 @@ html {
     font-weight: bold;
     color: #675AFF; /* Brand color */
     margin: 0; /* Adjust as needed */
-    padding-right: 0px; /* Padding on the right to maintain alignment */
 }
+
 
 #statistics_content article {
     background-color: white;

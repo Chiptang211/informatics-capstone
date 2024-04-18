@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let currentZipcode = '';  // Variable to store the current zipcode
+    let currentZipcode = '';
 
     function hideAllSections() {
         document.querySelectorAll('main .main-content section').forEach(function(section) {
@@ -10,22 +10,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function showSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
-            section.style.display = 'flex';  // Ensure that this matches your CSS for displaying sections
-            // Update the zipcode in the statistics section when it is shown
+            section.style.display = 'flex';
             if (sectionId === 'statistics' && currentZipcode) {
-                const statisticsZipcodeElements = document.querySelectorAll('#statistics_zipcode');
-                statisticsZipcodeElements.forEach(el => el.textContent = currentZipcode);
+                document.querySelectorAll('#statistics_zipcode').forEach(el => el.textContent = currentZipcode);
             }
         }
     }
 
-    function showDashboard() {
-        hideAllSections();
-        showSection('dashboard');
-    }
-
     document.querySelectorAll('.sidebar a').forEach(function(link) {
-        // Only add internal navigation handling to hash links
         if (link.getAttribute('href').startsWith('#')) {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -35,75 +27,64 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
-    
+
     function fetchAndDisplayData(zipcode) {
         const apiUrl = `https://geohealth.chiptang.com/fetch/data/covid?zipcode=${zipcode}`;
         fetch(apiUrl)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok.');
+                return response.json();
+            })
             .then(data => {
+                console.log("Fetched data:", data);  // Log the data to see what's actually coming back.
                 if (data && data.status === 'success' && data.data.length > 0) {
-                    currentZipcode = zipcode;  // Store the zipcode globally
-    
-                    // Update any visible zipcode fields immediately after fetching
-                    const statisticsZipcodeElements = document.querySelectorAll('#statistics_zipcode');
-                    statisticsZipcodeElements.forEach(el => el.textContent = zipcode);
-    
-                    // Find the most recent risk score
-                    const latestData = data.data[data.data.length - 1];
-                    const riskScore = latestData.risk_score;
-    
-                    // Display the risk score
-                    const statisticsRiskScoreElement = document.getElementById('statistics_disease_score');
-                    statisticsRiskScoreElement.textContent = riskScore;
-    
-                    // Update the risk image based on the risk score
-                    updateRiskImage(riskScore);
+                    currentZipcode = zipcode;
+                    document.querySelectorAll('#statistics_zipcode').forEach(el => el.textContent = zipcode);
+
+                    const latestData = data.data[0]; // Assuming the first entry is the most relevant
+                    const riskScore = latestData.risk_score; // No longer converting to lower case here
+                    console.log("Risk Score received:", riskScore); // Log the risk score to debug
+
+                    if (riskScore) {
+                        document.getElementById('statistics_disease_score').textContent = riskScore.charAt(0).toUpperCase() + riskScore.slice(1);
+                        updateRiskImage(riskScore.toLowerCase());
+                        updateDashboardRiskImage(riskScore.toLowerCase());
+                    } else {
+                        console.error('Risk score is missing or invalid:', riskScore);
+                    }
                 } else {
                     console.error('No data returned for this zipcode:', zipcode);
                 }
             })
             .catch(error => {
-                console.error('Fetching error:', error);
+                console.error('Error fetching data:', error);
             });
     }
 
     function updateRiskImage(riskScore) {
-        let riskImageSrc = '';
-        if (riskScore <= 3) {
-            riskImageSrc = 'img/lowRisk.png';
-        } else if (riskScore > 3 && riskScore <= 6) {
-            riskImageSrc = 'img/mediumRisk.png';
-        } else if (riskScore > 6) {
-            riskImageSrc = 'img/highRisk.png';
-        }
-        
-        const riskImageElement = document.querySelector('#viral_detection_graphs img');
-        if (riskImageElement) {
-            riskImageElement.src = riskImageSrc;
-            riskImageElement.alt = riskScore <= 3 ? 'Low Risk' : riskScore <= 6 ? 'Medium Risk' : 'High Risk';
-        }
+        const riskImageElement = document.getElementById('riskImage');
+        riskImageElement.src = `img/${riskScore}Risk.png`;
+        riskImageElement.alt = `${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)} Risk`;
     }
 
-    // Assuming you have some form or mechanism on index.html to initiate the search
+    function updateDashboardRiskImage(riskScore) {
+        const dashboardRiskImage = document.querySelector('#viral_detection_graphs img');
+        dashboardRiskImage.src = `img/${riskScore}riskgraph.png`;
+        dashboardRiskImage.alt = `COVID Risk Level: ${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)}`;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const zipcode = urlParams.get('zipcode');
     if (zipcode) {
         fetchAndDisplayData(zipcode);
     }
 
-    const viralDetectionGraphs = document.getElementById('viral_detection_graphs');
-    if (viralDetectionGraphs) {
-        viralDetectionGraphs.style.cursor = 'pointer';
-        viralDetectionGraphs.addEventListener('click', function() {
-            // Redirect to the dashboard URL or simulate a click on the dashboard sidebar link
-            window.location.href = 'dashboard.html'; // Change this URL to your actual dashboard page URL if different
-        });
-    }
-
-    // Show the initial dashboard section
     hideAllSections();
     showSection('dashboard');
 });
+
+
+
 
 
 
