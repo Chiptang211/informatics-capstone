@@ -520,6 +520,9 @@ html {
     display: flex;
 }
 
+#wastewater-chart {
+    width: 80%;
+}
 /* resources page */
 #resources {
     margin-left: 350px;

@@ -1,5 +1,5 @@
 # API & Backend Documentation
-Last Updated at 6:00 AM PDT on March 30th
+Last Updated at 7:00 PM PST on April 17th
 
 ## Database
 ### covid_id
@@ -240,3 +240,31 @@ JSON
   - Returns 400 if the zipcode parameter is missing in the request.
   - Returns 404 if no facilities are found near the specified zipcode or if the zipcode cannot be geolocated.
   - Returns 500 if there is an error in fetching data from the geolocation API or querying the database.
+
+### 4. Update Feedback Data
+- **Request URL:** `/update/feedback`
+- **Request Format:** Text
+- **Request Type:** POST
+- **Description:**  Pushes most recent feedback data based on user input within our website.
+- **Query Parameters:** 
+Necessary:Email Address, 5StarRating, LikeFeedback, ImproveFeedback
+- **Example Request:**
+```
+TEXT
+POST /update/covid?5StarRating=4
+POST /update/covid?EmailAddress="blabla@uw.edu"
+POST /update/covid?likeFeedback= "I liked the user interface!"
+POST /update/covid?ImproveFeedback= "I thought there could be more interactive graphs within the stats page!"
+```
+
+- **Example Response:**
+```
+JSON
+{
+  "message": "Data fetched and inserted successfully for feedback up to current date."
+}
+```
+
+- **Error Handling:**
+  - Returns 400 if necessary parameters are not included.
+  - Returns 500 if there is a failure in getting or updating the feedback data records.
