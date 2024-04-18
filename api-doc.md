@@ -52,6 +52,11 @@ Last Updated at 6:00 AM PDT on March 30th
 - **Data Example:** 100
 - **Data Description:** The proportion of tests with SARS-CoV-2 detected, meaning a cycle threshold (Ct) value <40 for RT-qPCR or at least 3 positive droplets/partitions for RT-ddPCR, by sewershed over the 15-day window defined by 'date_start' and "date_end'. The detection proportion is the percent calculated by dividing the 15-day rolling sum of SARS-CoV-2 detections by the 15-day rolling sum of the number of tests for each sewershed and multiplying by 100.
 
+### concentration (pcr_conc_smoothed)
+- **Data Tyoe:** NUMERIC
+- **Data Example:** 1116238.6628
+- **Data Description:** The normalization method of the SARS-CoV-2 virus concentration in wastewater. There are two normalization: flow-population or human fecal. The flow-population normalization method is calculated by multiplying the SARS-CoV-2 concentration and flow rate then dividing by population served. The flow-population normalization approach indicates whether the total number of individuals at the site who are shedding has changed. The human fecal normalization is SARS-CoV-2 virus concentration divided by the human fecal marker concentration. The human fecal normalization approach indicates whether the proportion of individuals at the site who are shedding has changed.
+
 ### date_start
 - **Data Tyoe:** TEXT NOT NULL
 - **Data Example:** 2024-03-12
@@ -62,7 +67,7 @@ Last Updated at 6:00 AM PDT on March 30th
 - **Data Example:** 2024-03-26
 - **Data Description:** The end date of the interval over which metric is calculated. Intervals are inclusive of start and end dates.
 
-See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wastewater-Metric-Data/2ew6-ywp6/about_data``` for more information.
+See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wastewater-Metric-Data/2ew6-ywp6/about_data``` and ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Concentration-in-Wastewater/g653-rqe2/about_data```for more information.
 
 
 ## API
@@ -111,7 +116,7 @@ JSON
 ```
 TEXT
 POST/fetch/data/covid?zipcode=99258
-POST/fetch/data/covid?zipcode=99258&fromDate=2024-04-12&toDate=2024-04-13
+POST/fetch/data/covid?zipcode=99258&fromDate=2024-04-01&toDate=2024-04-02
 ```
 
 - **Example Response:**
@@ -122,35 +127,39 @@ JSON
   "data": [
     {
       "facility_cdc_id": 760,
-      "covid_level": 3,
-      "percent_change": -56,
+      "covid_level": 10,
+      "percent_change": -54,
       "percent_detect": 100,
       "risk_score": "low",
-      "date_end": "2024-04-12"
+      "concentration": 218043153.3101,
+      "date_end": "2024-04-01"
     },
     {
       "facility_cdc_id": 759,
       "covid_level": 5.667,
-      "percent_change": -99,
+      "percent_change": -40,
       "percent_detect": 100,
       "risk_score": "low",
-      "date_end": "2024-04-12"
+      "concentration": 211752952.9665,
+      "date_end": "2024-04-01"
     },
     {
       "facility_cdc_id": 760,
-      "covid_level": 3,
-      "percent_change": -20,
+      "covid_level": 10,
+      "percent_change": -74,
       "percent_detect": 100,
       "risk_score": "low",
-      "date_end": "2024-04-13"
+      "concentration": 208954530.3303,
+      "date_end": "2024-04-02"
     },
     {
       "facility_cdc_id": 759,
       "covid_level": 5.667,
-      "percent_change": null,
+      "percent_change": -74,
       "percent_detect": 100,
       "risk_score": "low",
-      "date_end": "2024-04-13"
+      "concentration": null,
+      "date_end": "2024-04-02"
     }
   ]
 }

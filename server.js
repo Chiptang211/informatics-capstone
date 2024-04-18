@@ -29,13 +29,21 @@ function getDates(startDate, endDate) {
     return dates;
 }
 
-async function fetchDataForDate(date) {
+async function fetchMetricData(date) {
     const fetch = (await import('node-fetch')).default;
     const formattedDate = date.toISOString().split('T')[0];
     const apiUrl = `https://data.cdc.gov/resource/2ew6-ywp6.json?date_end=${formattedDate}&$limit=50000`;
     const response = await fetch(apiUrl);
-    const data = await response.json();
-    return data;
+    const metricData = await response.json();
+    return metricData;
+}
+
+async function fetchConcentrationData(date) {
+    const fetch = (await import('node-fetch')).default;
+    const apiUrl = `https://data.cdc.gov/resource/g653-rqe2.json?date=${date.toISOString().split('T')[0]}&$limit=50000`;
+    const response = await fetch(apiUrl);
+    const concentrationData = await response.json();
+    return concentrationData;
 }
 
 async function calculateRisk() {
@@ -115,8 +123,8 @@ app.post('/update/covid', async (req, res) => {
         const db = await getDBConnection();
 
         for (const date of dates) {
-            const data = await fetchDataForDate(date);
-            const insertQuery = `
+            const metricData = await fetchMetricData(date);
+            const metricQuery = `
                 INSERT INTO covid_wastewater (
                     covid_id, state, county, fips_id, facility_name, facility_cdc_id, population_served,
                     percent_change, covid_level, percent_detect, date_start, date_end
@@ -124,13 +132,13 @@ app.post('/update/covid', async (req, res) => {
                 ON CONFLICT (covid_id) DO NOTHING
             `;
 
-            for (const item of data) {
+            for (const item of metricData) {
+                const covid_id = `${item.date_end}_${item.wwtp_id}`;
                 const percentChange = item.ptc_15d !== null ? item.ptc_15d : 0;
                 const covidLevel = item.percentile !== null ? item.percentile : 0;
                 const percentDetect = item.detect_prop_15d !== null ? item.detect_prop_15d : 0;
-                const covid_id = `${item.date_start}_${item.wwtp_id}`;
 
-                await db.run(insertQuery, [
+                await db.run(metricQuery, [
                     covid_id,
                     item.wwtp_jurisdiction,
                     item.county_names,
@@ -145,6 +153,22 @@ app.post('/update/covid', async (req, res) => {
                     item.date_end
                 ]);
             }
+
+            const concentrationData = await fetchConcentrationData(date);
+            const concentrationQuery = `
+            UPDATE covid_wastewater
+            SET concentration = ?
+            WHERE facility_name = ? AND date_end = ?
+            `;
+
+            for (const item of concentrationData) {
+                await db.run(concentrationQuery, [
+                    item.pcr_conc_smoothed,
+                    item.key_plot_id,
+                    item.date
+                ]);
+            }
+
 
             calculateRisk();
         }
@@ -175,14 +199,20 @@ app.get('/fetch/data/covid', async (req, res) => {
         console.log("FIPS ID:", fipsId);
 
         let query = `
-            SELECT facility_cdc_id, covid_level, percent_change, percent_detect, risk_score, date_end
+            SELECT facility_cdc_id, covid_level, percent_change, percent_detect, risk_score, concentration, date_end
             FROM covid_wastewater
-            WHERE ',' || fips_id || ',' LIKE ?`;
-        let params = [`%,${fipsId},%`];
+            WHERE fips_id = ?`;
+        let params = [fipsId];
 
-        if (fromDate || toDate) {
+        if (fromDate && toDate) {
             query += ` AND date_end BETWEEN ? AND ?`;
-            params.push(fromDate || '0001-01-01', toDate || '9999-12-31');
+            params.push(fromDate, toDate);
+        } else if (fromDate) {
+            query += ` AND date_end >= ?`;
+            params.push(fromDate);
+        } else if (toDate) {
+            query += ` AND date_end <= ?`;
+            params.push(toDate);
         }
 
         console.log("Final query:", query);
