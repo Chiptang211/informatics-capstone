@@ -487,9 +487,25 @@ html {
 .risk-score-value {
     font-size: 4em; /* Large font size for the score */
     font-weight: bold;
-    color: #675AFF; /* Brand color */
+    color: #675AFF; /* This will be overridden by gradient */
     margin: 0; /* Adjust as needed */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
+
+.risk-score-value.risk-low {
+    background-image: linear-gradient(to right, #56ab2f, #a8e063); /* Green gradient */
+}
+
+.risk-score-value.risk-medium {
+    background-image: linear-gradient(to right, #FF8008, #FFC837); /* Orange gradient */
+}
+
+.risk-score-value.risk-high {
+    background-image: linear-gradient(to right, #D31027, #EA384D); /* Red gradient */
+}
+
 
 
 #statistics_content article {
@@ -504,8 +520,17 @@ html {
     display: flex;
 }
 
+/* resources page */
+#resources {
+    margin-left: 350px;
+    margin-right: 100px;
+}
 
-
+#feedback-form {
+    padding: 20px;
+    padding-top: 100px;
+    padding-bottom: 0px;
+}
 @media (max-width: 768px) {
     .statistics-header-container {
         flex-direction: column; /* Stack vertically on small screens */

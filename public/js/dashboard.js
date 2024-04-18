@@ -36,22 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                console.log("Fetched data:", data);  // Log the data to see what's actually coming back.
                 if (data && data.status === 'success' && data.data.length > 0) {
                     currentZipcode = zipcode;
                     document.querySelectorAll('#statistics_zipcode').forEach(el => el.textContent = zipcode);
 
                     const latestData = data.data[0]; // Assuming the first entry is the most relevant
-                    const riskScore = latestData.risk_score; // No longer converting to lower case here
-                    console.log("Risk Score received:", riskScore); // Log the risk score to debug
-
-                    if (riskScore) {
-                        document.getElementById('statistics_disease_score').textContent = riskScore.charAt(0).toUpperCase() + riskScore.slice(1);
-                        updateRiskImage(riskScore.toLowerCase());
-                        updateDashboardRiskImage(riskScore.toLowerCase());
-                    } else {
-                        console.error('Risk score is missing or invalid:', riskScore);
-                    }
+                    const riskScore = latestData.risk_score; // Use the risk score as is
+                    updateRiskScoreDisplay(riskScore);
+                    updateRiskImage(riskScore);
+                    updateDashboardRiskImage(riskScore);
                 } else {
                     console.error('No data returned for this zipcode:', zipcode);
                 }
@@ -63,14 +56,66 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateRiskImage(riskScore) {
         const riskImageElement = document.getElementById('riskImage');
-        riskImageElement.src = `img/${riskScore}Risk.png`;
+        let imageName;
+        switch (riskScore.toLowerCase()) {
+            case 'low':
+                imageName = 'lowRisk';
+                break;
+            case 'medium':  // Adjusted to match the actual filename
+                imageName = 'mediumRisk';
+                break;
+            case 'high':
+                imageName = 'highRisk';
+                break;
+            default:
+                imageName = 'unknownRisk';  // Handle any unexpected cases
+                break;
+        }
+        riskImageElement.src = `img/${imageName}.png`;
         riskImageElement.alt = `${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)} Risk`;
     }
-
+    
     function updateDashboardRiskImage(riskScore) {
         const dashboardRiskImage = document.querySelector('#viral_detection_graphs img');
-        dashboardRiskImage.src = `img/${riskScore}riskgraph.png`;
+        let imageName;
+        switch (riskScore.toLowerCase()) {
+            case 'low':
+                imageName = 'lowRisk';
+                break;
+            case 'medium':  // Adjusted to match the actual filename
+                imageName = 'mediumRisk';
+                break;
+            case 'high':
+                imageName = 'highRisk';
+                break;
+            default:
+                imageName = 'unknownRisk';  // Consider handling unknown cases
+                break;
+        }
+        dashboardRiskImage.src = `img/${imageName}.png`;
         dashboardRiskImage.alt = `COVID Risk Level: ${riskScore.charAt(0).toUpperCase() + riskScore.slice(1)}`;
+    }
+    
+
+    function updateRiskScoreDisplay(riskScore) {
+        const riskScoreElement = document.getElementById('statistics_disease_score');
+        riskScoreElement.textContent = riskScore.charAt(0).toUpperCase() + riskScore.slice(1);
+
+        // Remove previous classes
+        riskScoreElement.classList.remove('risk-low', 'risk-medium', 'risk-high');
+
+        // Add the appropriate class based on the risk score
+        switch (riskScore.toLowerCase()) {
+            case 'low':
+                riskScoreElement.classList.add('risk-low');
+                break;
+            case 'medium':
+                riskScoreElement.classList.add('risk-medium');
+                break;
+            case 'high':
+                riskScoreElement.classList.add('risk-high');
+                break;
+        }
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -82,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hideAllSections();
     showSection('dashboard');
 });
+
 
 
 
