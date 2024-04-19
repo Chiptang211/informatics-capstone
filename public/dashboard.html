@@ -9,6 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #mapContainer { height: 600px; width: 100%; }
+    </style>
+
     <title>GeoHealth - Dashboard</title>
 </head>
 <body>
@@ -48,8 +55,8 @@
             </section>
 
             <section id="map">
-                <h1>Wastewater Treatment Facilities Map</h1>
-                <div id="map" style="height: 600px; width: 100%;"></div>
+                <h1>Wastewater Treatment Facilities <br> Mapping</h1>
+                <div id="mapContainer"></div>
             </section>
 
             <section id="statistics" style="display:none;">

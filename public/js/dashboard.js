@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (sectionId === 'statistics' && currentZipcode) {
                 document.querySelectorAll('#statistics_zipcode').forEach(el => el.textContent = currentZipcode);
             }
+            if (sectionId === 'map' && currentZipcode) {
+                initMap(currentZipcode);  // Ensure the map is initialized when the map section is shown
+            }
         }
     }
 
@@ -115,37 +118,77 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initMap(zipcode) {
-        const mapOptions = {
-            center: { lat: 47.660709, lng: -117.404107 },
-            zoom: 8,
-        };
-        const map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
+        // Clear existing map instance if it exists
+        if (window.myMap) {
+            window.myMap.remove();
+        }
+    
+        // Initialize the map
+        window.myMap = L.map('mapContainer').setView([47.660709, -117.404107], 8);
+    
+        // Add an OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(window.myMap);
+    
+        // Fetch and display facilities
         const url = `https://geohealth.chiptang.com/fetch/data/facility?zipcode=${zipcode}&limit=10`;
         fetch(url)
             .then(response => response.json())
             .then(data => {
+                if (data.length === 0) {
+                    alert("No facilities found near this zipcode.");
+                    return;
+                }
+    
                 data.forEach(facility => {
-                    const marker = new google.maps.Marker({
-                        position: { lat: facility.latitude, lng: facility.longitude },
-                        map: map,
-                        title: facility.facility_name
-                    });
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<h3>${facility.facility_name}</h3><p>${facility.address}, ${facility.city}, ${facility.state}, ${facility.zipcode}</p>`
-                    });
-                    marker.addListener('click', () => {
-                        infoWindow.open(map, marker);
-                    });
+                    const marker = L.marker([facility.latitude, facility.longitude]).addTo(window.myMap);
+                    marker.bindPopup(`<strong>${facility.facility_name}</strong><br>${facility.address}, ${facility.city}, ${facility.state}, ${facility.zipcode}`);
                 });
+    
+                // Automatically adjust the map to show all markers
+                var group = new L.featureGroup(data.map(facility => L.marker([facility.latitude, facility.longitude])));
+                window.myMap.fitBounds(group.getBounds().pad(0.5));
             })
-            .catch(error => console.error("Error loading facilities:", error));
+            .catch(error => {
+                console.error("Error loading facilities:", error);
+                alert("Error fetching facility data.");
+            });
     }
+    // function initMap(zipcode) {
+    //     const mapOptions = {
+    //         center: { lat: 47.660709, lng: -117.404107 },
+    //         zoom: 8,
+    //     };
+    //     const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    //     const url = `https://geohealth.chiptang.com/fetch/data/facility?zipcode=${zipcode}&limit=10`;
+    //     fetch(url)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             data.forEach(facility => {
+    //                 const marker = new google.maps.Marker({
+    //                     position: { lat: facility.latitude, lng: facility.longitude },
+    //                     map: map,
+    //                     title: facility.facility_name
+    //                 });
+    //                 const infoWindow = new google.maps.InfoWindow({
+    //                     content: `<h3>${facility.facility_name}</h3><p>${facility.address}, ${facility.city}, ${facility.state}, ${facility.zipcode}</p>`
+    //                 });
+    //                 marker.addListener('click', () => {
+    //                     infoWindow.open(map, marker);
+    //                 });
+    //             });
+    //         })
+    //         .catch(error => console.error("Error loading facilities:", error));
+    // }
     
     const urlParams = new URLSearchParams(window.location.search);
     const zipcode = urlParams.get('zipcode');
     if (zipcode) {
         fetchAndDisplayData(zipcode);
+        initMap(zipcode);
     }
 
     hideAllSections();
