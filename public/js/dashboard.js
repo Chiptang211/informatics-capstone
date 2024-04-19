@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).addTo(window.myMap);
     
 
-        const url = `https://geohealth.chiptang.com/fetch/data/facility?zipcode=${zipcode}&limit=10`;
+        const url = `https://geohealth.chiptang.com/fetch/data/facility?zipcode=${zipcode}&limit=50`;
         fetch(url)
             .then(response => response.json())
             .then(data => {
