@@ -1,95 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="author" content="Chip Tang and Grant Bransteter">
-   <link rel="stylesheet" href="css/styles.css">
-   <link rel="icon" type="image/png" href="img/geohealthicon.png">
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   <title>GeoHealth - Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="Chip Tang and Grant Bransteter">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/png" href="img/geohealthicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #mapContainer { height: 600px; width: 100%; }
+    </style>
+
+    <title>GeoHealth - Dashboard</title>
 </head>
 <body>
-   <main>
-       <section>
-           <div class="sidebar">
-               <a href="index.html"><img src="img/geohealthlogo2.png" alt="GeoHealth Logo" class="favicon"></a>
-               <a href="#dashboard">Dashboard</a>
-               <a href="#map">Map</a>
-               <a href="#statistics">Statistics</a>
-               <a href="#resources">Resources</a>
-               <a href="index.html" class="return-home"> Return to Home </a>
-           </div>
-       </section>
-       <div class="main-content">
+    <main>
+        <section>
+            <div class="sidebar">
+                <a href="index.html"><img src="img/geohealthlogo2.png" alt="GeoHealth Logo" class="favicon"></a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#map">Map</a>
+                <a href="#statistics">Statistics</a>
+                <a href="#resources">Resources</a>
+                <a href="index.html" class="return-home">Return to Home</a>
+            </div>
+        </section>
+        <div class="main-content">
 
-           <section id="dashboard">
-               <article id="viral_detection">
-                   <div class="title-container">
-                       <h1 class="viral-heading">
-                           <div class="text-wrapper">
-                               Viral Wastewater Detection near: <br> <span id="statistics_zipcode"></span>
-                           </div>
-                           <!--<div class="image-wrapper">
-                               <img src="img/viruslogo.png" alt="Illustration of COVID virus">
-                           </div>-->
-                       </h1>
-                   </div>
-                   <div>
-                       <p>Wastewater detection of viruses involves testing sewage for traces of viruses shed by people. It's important because it provides an early indication of viral outbreaks in communities, and can inform you when to be extra careful.</p>
-                   </div>
-                   <div id="viral_detection_graphs">
-                       <div class="text-container">
-                           <h2>COVID-19</h2>
-                           <p>Detection</p>
-                       </div>
-                       <img id="riskImage" src="img/lowRisk.png" alt="Risk Image">
-                       <!-- add more graphs here with JS-->
-                   </div>
-               </article>
-           </section>
+            <section id="dashboard">
+                <article id="viral_detection">
+                    <div class="title-container">
+                        <h1 class="viral-heading">
+                            <div class="text-wrapper">
+                                Viral Wastewater Detection near: <br> <span id="statistics_zipcode"></span>
+                            </div>
+                        </h1>
+                    </div>
+                    <div>
+                        <p>Wastewater detection of viruses involves testing sewage for traces of viruses shed by people. It's important because it provides an early indication of viral outbreaks in communities, and can inform you when to be extra careful.</p>
+                    </div>
+                    <div id="viral_detection_graphs">
+                        <div class="text-container">
+                            <h2>COVID-19</h2>
+                            <p>Detection</p>
+                        </div>
+                        <img id="riskImage" src="img/lowRisk.png" alt="Risk Image">
+                    </div>
+                </article>
+            </section>
 
-           <section id="map">
-            
-            <h1>Wastewater Treatment Facilities Map</h1>
-            <div id = "map"style="height:600px; width:100%"></div>
-            
-            <script>
-                // blaaa
-            </script>
-            <script>
-            function initMap() {
-                const map = new google.maps.Map(document.getElementById("map"), {
-                    center: { lat: 47.660709, lng: -117.404107 },
-                    zoom:10,
-                });
-                fetch("https://geohealth.chiptang.com/fetch/data/facility?zipcode=99258&limit=10")
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(facility => {
-                        const marker = new google.maps.Marker({
-                            position: { lat: parseFloat(facility.latitude), lng: parseFloat(facility.longitude)},
-                            map:map,
-                            title: facility.facility_name,
-                        });
-                        const infoWindow = new google.maps.InfoWindow({
-                            content: '<h3>${facility.facility_name}</h3><p>${facility.address}, ${facility.city}, ${facility.state}, ${facility.zipcode}</p>'
-                        });
-                        marker.addListener('click', () => {
-                            infoWindow.open(map, marker);
-                        });
-                    });
-                })
-            .catch(error => console.error("Error fetching data:", error));
-            }
-        </script>
-        <script src = "https://maps.googleapis.com/api/js?key=AIzaSyBsyXumUrPsNkW38FSNycwO3dZeBqKwVdo&callback=initMap" async defer></script>
-           </section>
+            <section id="map">
+                <h1>Wastewater Treatment Facilities <br> Mapping</h1>
+                <div id="mapContainer"></div>
+            </section>
 
-
-           <section id="statistics" style="display:none;">
+            <section id="statistics" style="display:none;">
                 <div class="statistics-header-container">
                     <div class="statistics-header">
                         <h1>COVID-19 Statistics <br> near: <span id="statistics_zipcode"></span></h1>
@@ -98,14 +68,7 @@
                         <p>COVID-19 is a contagious respiratory illness caused by the virus SARS-CoV-2. It primarily spreads through respiratory droplets and can cause symptoms such as fever, cough, and fatigue. Preventive measures like wearing masks and vaccination are crucial in reducing its spread.</p>
                     </div>
                 </div>
-               <!-- <div class="filter">
-                   <label for="statistics_filter"></label>
-                   <select id="statistics_filter" placeholder="Filter">
-                       <option value="placeholder">Filter</option>
-                   </select>
-               </div> -->
-
-               <div id="statistics_content">
+                <div id="statistics_content">
                     <div class="description-score-container">
                         <article class="statistics-description">
                             <p>GeoHealth calculates your personalized disease risk score on a scale from 1 to 10, tailored to your specific location and health data. This score reflects the level of risk for disease transmission, considering factors like wastewater PPM, infection rates, and vaccination coverage.</p>
@@ -115,97 +78,34 @@
                             <p class="risk-score-value" id="statistics_disease_score"></p>
                         </div>
                     </div>
-        
-
-
-                   <article id="wastewater-chart">
-                       <h2>Wastewater Analysis</h2>
-                       <canvas id="particulateChart"></canvas>
-                       <p><span id="statistics_disease_name"></span> <p>This metric shows whether SARS-CoV-2 virus levels at a site are currently higher or lower than past historical levels at the same site. 0% means levels are the lowest they have been at the site; 100% means levels are the highest they have been at the site. Public health officials watch for increasing levels of the virus in wastewater over time and use this data to help make public health decisions.</p><span id="statistics_wastewater_name"></span></p>
-                       <p><span id="statistics_disease_name"></span> Parts Per Million (PPM) from a <span id="statistics_wastewater_name"></span></p>
-                       <p><span id="statistics_wastewater_description"></span></p>
-                       <!-- <canvas id="particulateChart"></canvas>-->
-                       <canvas id="particulateChart"></canvas>
-                       <p><span id="statistics_disease_name"></span> <p>This metric shows whether SARS-CoV-2 virus levels at a site are currently higher or lower than past historical levels at the same site. 0% means levels are the lowest they have been at the site; 100% means levels are the highest they have been at the site. Public health officials watch for increasing levels of the virus in wastewater over time and use this data to help make public health decisions.</p><span id="statistics_wastewater_name"></span></p>
-                   </article>
-
-
-                   <!-- <article>
-                       <h2>Hospitalizations and Prevalence</h2>
-                       <h3>Per 100,000 people</h3>
-                       <p><span id="statistics_prevalence_description"></span></p>
-                   </article> -->
-
-
-                   <!-- <article>
-                       <h2>Key Metrics</h2>
-                       <div>
-                           <div>
-                               <p>Metric Name</p>
-                           </div>
-                               <img src="img/placeholder.png" alt="placeholder">
-                           </div> -->
-                           </div>
-                               <img src="img/placeholder.png" alt="placeholder">
-                           </div> -->
-                           <!-- Populate more metric divs here with JS DOM-->
-                       <!-- </div>
-                   </article>
-               </div> -->
-
-
-           </section>
-
-
-           <section id="resources" style="display:none;">
-               <div>
-                   <h1>Resources</h1>
-                   <p><a href = "https://kingcounty.gov/en/dept/dph">1. Public Health- Seattle and King County</a></p>
-                   <p>This is a great resource that accomplishes a number of purposes. You can find a vaccination clinic, get a food worker card,</p>
-                   <p>learn about how you can protect yourself against Covid-19, along with many more valuable features. This website is organized into two sections,</p>
-                   <p>Latest News and the Services and Resource Directory. These sections help the user to stay up-to-date and protect themselves against infectious disease.</p>
-                   <p><a href = "https://pandemicpatients.org/home/covid-19-resources/">2. Pandemic Patients</a></p>
-                   <p>This website creates a way for people to gain information regarding Covid-19, its symptoms, and the relationship between Covid and air quality/wildfire smoke.</p>
-                   <p>Furthermore, the website uses a horizontal navigation bar at the top of the website to separate key features.</p>
-                   <p>Some of the resources clearly outlined within this project include the Covid-19 Advocacy Center and Pandemic Legal services.</p>
-                   <p>The Advocacy Center is a platform for connecting Americans affected by Covid-19 with their elected officials.</p>
-                   <p>Pandemic Legal is a program focused on providing free or reduced cost legal services to those affected by the Coronavirus pandemic.</p>
-                   <p><a href = "https://www.covid19treatmentguidelines.nih.gov">3. Covid-19 Treatment Guidelines</a></p>
-                   <p>This is a great resource for the general public, enabling them to understand treatment guidelines for Covid-19 in regards to different types of individuals.</p>
-                   <p>Treatment Guidelines are organized by type of individual. For example, treatment guidelines for nonhospitalized adults are organized into one section on the website.</p>
-                   <p>Whereas treatment guidelines for hospitalized children are organized within a different section of the website.</p>
-                   <p><a href = "https://www.nytimes.com/interactive/2020/science/coronavirus-drugs-treatments.html">4. Covid-19 Drug and Treatment Tracker</a></p>
-                   <p>This website keeps track of potential cures and treatments for Covid-19, allowing the general public to be informed and up-to-date regarding the illness.</p>
-                   <p>Furthermore, it categorizes these potential treatment options by level of effectiveness and safety. Potential treatment options range from fraud and pseudoscience</p>
-                   <p>all the way to FDA-approved solutions.</p>
-                   <p><a href = "https://health.gov/healthypeople/tools-action/browse-evidence-based-resources">5. Infectious Disease Evidence-Based Resources</a></p>
-                   <p>Evidence-Based Resources, or EBRs, are published reviews of intervention evaluations and studies to improve health. This platform has organized the EBRs</p>
-                   <p>into various topics based on health conditions, health behaviors, population groups, settings/systems, and social determinants of health. Allows for a well-organized</p>
-                   <p>platform that the user can explore based on their interests.</p>
+                    <article id="wastewater-chart">
+                        <h2>Wastewater Analysis</h2>
+                        <canvas id="particulateChart"></canvas>
+                    </article>
                 </div>
+            </section>
 
+            <section id="resources" style="display:none;">
+                <div>
+                    <h1>Resources</h1>
+                    <p><a href="https://kingcounty.gov/en/dept/dph">1. Public Health- Seattle and King County</a></p>
+                    <p>This is a great resource that accomplishes a number of purposes. You can find a vaccination clinic, get a food worker card, learn about how you can protect yourself against Covid-19, along with many more valuable features. This website is organized into two sections, Latest News and the Services and Resource Directory. These sections help the user to stay up-to-date and protect themselves against infectious disease.</p>
+                    <p><a href="https://pandemicpatients.org/home/covid-19-resources/">2. Pandemic Patients</a></p>
+                    <p>This website creates a way for people to gain information regarding Covid-19, its symptoms, and the relationship between Covid and air quality/wildfire smoke. Furthermore, the website uses a horizontal navigation bar at the top of the website to separate key features. Some of the resources clearly outlined within this project include the Covid-19 Advocacy Center and Pandemic Legal services. The Advocacy Center is a platform for connecting Americans affected by Covid-19 with their elected officials. Pandemic Legal is a program focused on providing free or reduced cost legal services to those affected by the Coronavirus pandemic.</p>
+                    <p><a href="https://www.covid19treatmentguidelines.nih.gov">3. Covid-19 Treatment Guidelines</a></p>
+                    <p>This is a great resource for the general public, enabling them to understand treatment guidelines for Covid-19 in regards to different types of individuals. Treatment Guidelines are organized by type of individual. For example, treatment guidelines for nonhospitalized adults are organized into one section on the website. Whereas treatment guidelines for hospitalized children are organized within a different section of the website.</p>
+                    <p><a href="https://www.nytimes.com/interactive/2020/science/coronavirus-drugs-treatments.html">4. Covid-19 Drug and Treatment Tracker</a></p>
+                    <p>This website keeps track of potential cures and treatments for Covid-19, allowing the general public to be informed and up-to-date regarding the illness. Furthermore, it categorizes these potential treatment options by level of effectiveness and safety. Potential treatment options range from fraud and pseudoscience all the way to FDA-approved solutions.</p>
+                    <p><a href="https://health.gov/healthypeople/tools-action/browse-evidence-based-resources">5. Infectious Disease Evidence-Based Resources</a></p>
+                    <p>Evidence-Based Resources, or EBRs, are published reviews of intervention evaluations and studies to improve health. This platform has organized the EBRs into various topics based on health conditions, health behaviors, population groups, settings/systems, and social determinants of health. Allows for a well-organized platform that the user can explore based on their interests.</p>
+                </div>
+            </section>
+        </div> <!-- Closing main-content div -->
 
-               <!-- <div>
-                   <strong><p>Submit Form</p></strong>
-                   <p>Please fill in the required information</p>
+        <footer>
 
-
-                   <p>progress bar goes here</p>
-               </div>
-
-
-               <div>
-                   <p>questions go here</p>
-               </div> -->
-           </section>
-       </div> <!-- Closing main-content div -->
-
-
-       <footer>
-
-
-       </footer>
-   </main>
-   <script src="js/dashboard.js"></script>
+        </footer>
+    </main>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
