@@ -4,14 +4,16 @@ document.getElementById('feedback-form').addEventListener('submit', function(eve
     const rating = document.getElementById('star-rating').value;
     const feedbackLike = document.getElementById('like-feedback').value;
     const feedbackImprove = document.getElementById('improve-feedback').value;
+    const email = document.getElementById('email').value;
 
     const feedbackData = {
         rating: rating,
         feedbackLike: feedbackLike,
-        feedbackImprove: feedbackImprove
+        feedbackImprove: feedbackImprove,
+        email: email
     };
 
-    fetch('/update/feedback', {
+    fetch('https://geohealth.chiptang.com/update/feedback', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
