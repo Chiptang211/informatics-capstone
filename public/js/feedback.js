@@ -33,6 +33,15 @@ document.getElementById('feedback-form').addEventListener('submit', function(eve
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while submitting feedback. Please try again later.');
+        if (error.message.includes('HTTP error')) {
+            const errorCode = parseInt(error.message.split(' ')[2]);
+            if (errorCode >= 400 && errorCode < 600) {
+                alert('An error occurred while submitting feedback. Please try again later.');
+            } else {
+                alert('An unexpected error occurred. Please contact support.');
+            }
+        } else if(error.message === 'Invalid server response') {
+            alert('An unexpected error occurred. Please contact support.');
+        }
     });
 });
