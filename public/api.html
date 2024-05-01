@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="Chip Tang">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="icon" type="image/png" href="img/geohealthicon.png">
+        <title>GeoHealth - API</title>
+    </head>
+    <body>
+        <header role="banner">
+            <div class="navbar-container">
+                <nav>
+                    <div>
+                        <h1 class="title"><a href="index.html"><img src="img/geohealthlogo.png" alt="GeoHealth Logo"></a></h1>
+                    </div>
+                    <ul class="links">
+                        <li><a id="dashboard-button" href="dashboard.html">Dashboard</a></li>
+                        <li><a id="Feedback" href="feedback.html">Feedback</a></li>
+                        <li><a id="team" href="team.html">About Us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <h1>Risk Score API</h1>
+
+            <section>
+                <h2>1. Update Covid Data</h2>
+                <p><strong>Request URL:</strong> <code>https://geohealth.chiptang.com/update/covid</code></p>
+                <p><strong>Request Type:</strong> POST</p>
+                <p><strong>Description:</strong> Updates the COVID-19 wastewater data in the database. Requires Chip's permission due to the duration of data pulling.</p>
+                <h3>Query Parameters:</h3>
+                <ul>
+                    <li><strong>dateLimit (optional):</strong> Specific start date for data update in YYYY-MM-DD format.</li>
+                    <li><strong>dayLimit (optional):</strong> Number of days back from today to start the data update.</li>
+                </ul>
+                <h3>Example Requests:</h3>
+                <pre>
+              POST /update/covid?dateLimit=2024-01-01
+              POST /update/covid?dayLimit=100
+              POST /update/covid?dateLimit=2024-01-01&dayLimit=100
+                </pre>
+                <h3>Example Response:</h3>
+                <pre>
+              {
+                "message": "Data fetched and inserted successfully for dates from 2024-01-01 to 2024-04-01."
+              }
+                </pre>
+                <h3>Error Handling:</h3>
+                <ul>
+                    <li>Returns 400 if no dateLimit or dayLimit is provided.</li>
+                    <li>Returns 500 for processing or database interaction failures.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>2. Fetch Covid Data by Zipcode</h2>
+                <p><strong>Request URL:</strong> <code>https://geohealth.chiptang.com/fetch/data/covid</code></p>
+                <p><strong>Request Type:</strong> GET</p>
+                <p><strong>Description:</strong> Fetches COVID-19 data by zipcode. Optional date ranges can be specified.</p>
+                <h3>Query Parameters:</h3>
+                <ul>
+                    <li><strong>zipcode:</strong> The postal zipcode.</li>
+                    <li><strong>fromDate (optional):</strong> Start date for data retrieval.</li>
+                    <li><strong>toDate (optional):</strong> End date for data retrieval.</li>
+                </ul>
+                <h3>Example Requests:</h3>
+                <pre>
+              GET /fetch/data/covid?zipcode=99258
+              GET /fetch/data/covid?zipcode=99258&fromDate=2024-04-01&toDate=2024-04-02
+                </pre>
+                <h3>Example Response:</h3>
+                <pre>
+              {
+                "status": "success",
+                "data": [/* data array */]
+              }
+                </pre>
+                <h3>Error Handling:</h3>
+                <ul>
+                    <li>Returns 404 if no matching records are found.</li>
+                    <li>Returns 500 for internal server errors.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>3. Fetch Facility Data by Zipcode</h2>
+                <p><strong>Request URL:</strong> <code>https://geohealth.chiptang.com/fetch/data/facility</code></p>
+                <p><strong>Request Type:</strong> GET</p>
+                <p><strong>Description:</strong> Retrieves nearest wastewater facility information by zipcode. Returns up to 10 results by default.</p>
+                <h3>Query Parameters:</h3>
+                <ul>
+                    <li><strong>zipcode:</strong> Postal zipcode.</li>
+                    <li><strong>limit (optional):</strong> Maximum number of results to return.</li>
+                </ul>
+                <h3>Example Requests:</h3>
+                <pre>
+              GET /fetch/data/facility?zipcode=99258
+              GET /fetch/data/facility?zipcode=99258&limit=4
+                </pre>
+                <h3>Example Response:</h3>
+                <pre>
+              [/* facility data array */]
+                </pre>
+                <h3>Error Handling:</h3>
+                <ul>
+                    <li>Returns 400 if the zipcode parameter is missing.</li>
+                    <li>Returns 404 if no facilities are found.</li>
+                    <li>Returns 500 for errors in data fetching.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Update Feedback Data</h2>
+                <p><strong>Request URL:</strong> <code>https://geohealth.chiptang.com/update/feedback</code></p>
+                <p><strong>Request Type:</strong> POST</p>
+                <p><strong>Description:</strong> Allows users to submit feedback.</p>
+                <h3>Example Request:</h3>
+                <pre>
+              {
+                "email": "name@example.com",
+                "rating": 4,
+                "feedbackLike": "I liked the user interface!",
+                "feedbackImprove": "I thought there could be more interactive graphs within the stats page!"
+              }
+                </pre>
+                <h3>Example Response:</h3>
+                <pre>
+              {
+                "message": "Feedback submitted successfully."
+              }
+                </pre>
+                <h3>Error Handling:</h3>
+                <ul>
+                    <li>Returns 400 if necessary parameters are missing.</li>
+                    <li>Returns 500 for failures in processing feedback data.</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+
+        </footer>
+        <script src="js/index.js"></script>
+    </body>
+</html>
