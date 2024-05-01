@@ -1,5 +1,10 @@
 # API & Backend Documentation
-Last Updated at 7:00 PM PST on April 17th
+Last Updated at 7:00 PM PST on May 1st
+
+## Backend Structure
+- **Data Storage** - SQLite
+- **Web & API Hosting** - Express Webapp written in Javascript
+- **Data Flow** - Backend fetches data from CDC API based on date paremeters and instantly calculate risk score -> Data is recorded to data.db using SQLite command -> Data is retrieved using SQliet command and served to the front end using API
 
 ## Database
 ### covid_id
@@ -70,7 +75,7 @@ Last Updated at 7:00 PM PST on April 17th
 See ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Wastewater-Metric-Data/2ew6-ywp6/about_data``` and ```https://data.cdc.gov/Public-Health-Surveillance/NWSS-Public-SARS-CoV-2-Concentration-in-Wastewater/g653-rqe2/about_data```for more information.
 
 
-## API
+## APIs
 Base url: "https://geohealth.chiptang.com" + request
 
 ### 1. Update Covid Data
