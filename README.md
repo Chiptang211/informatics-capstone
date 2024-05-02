@@ -5,8 +5,8 @@ This project was created by a team of upperclassmen Informatics students at the 
 This project has a lot of potential for growth, which is why we are transitioning to open-source. We hope future teams will pick up our project and continue to develop it. Some ideas we had for them would be to increase the number of visualizations and statistics/key metrics within the statistics page. Another kep aspect we planned to implement but did not have enough time for was including data for other common infectious disease such as Influenza and RSV. Furthermore, another aspect that can be developed is identifying certain areas and times within a year that a zip code is likely to have a major outbreak of COVID. This will help our users avoid these areas, or at the very least take heightened measures to prevent the spread of illness. 
 
 # Contact US
-  JP Lopez - PM jlopez19@uw.edu
+  JP Lopez - Project Manger & Data Scientist jlopez19@uw.edu
   Chip Tang - Back End | chiptang@uw.edu
-  Paul - Back End/Machine Learning | jhjm7031@uw.edu
-  Eddie - Front End/Data Science | ebaghd@uw.edu
+  Paul - Back End | jhjm7031@uw.edu
+  Eddie - Front End | ebaghd@uw.edu
   Grant - Front End | gbrans@uw.edu
