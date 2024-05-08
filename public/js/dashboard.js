@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
         let imageName = riskScore.toLowerCase() + 'Risk';
         riskImageElement.src = `img/${imageName}.png`;
         riskImageElement.alt = `Risk Level: ${riskScore}`;
+        riskImageElement.style.width = '600px'; 
+        riskImageElement.style.height = 'auto';
         riskImageElement.addEventListener('click', function(event) {
             event.preventDefault();
             hideAllSections();
