@@ -293,6 +293,9 @@ html {
     justify-content: space-between;
     align-items: center;
  }
+ .viral-heading .text-wrapper {
+   font-size:1.5rem;
+ }
  
  
  .viral-heading img {

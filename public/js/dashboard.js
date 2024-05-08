@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function () {
         let imageName = riskScore.toLowerCase() + 'Risk';
         riskImageElement.src = `img/${imageName}.png`;
         riskImageElement.alt = `Risk Level: ${riskScore}`;
+        riskImageElement.addEventListener('click', function(event) {
+            event.preventDefault();
+            hideAllSections();
+            showSection('statistics');
+        });
     }
 
     function updateDashboardRiskImage(riskScore) {
