@@ -338,7 +338,32 @@ html {
     margin: 10px;
     width: 250px;
  }
- 
+ .resource-container {
+   display: flex;
+   margin-bottom: 20px;
+}
+
+.resource-info {
+   display: flex;
+   flex-direction: column;
+   padding: 10px;
+   background-color: #f2f2f2;
+   border-radius: 5px;
+}
+
+.resource-info p {
+   margin: 5px 0;
+}
+
+.resource-info a {
+   font-weight: bold;
+   color: #333;
+   text-decoration: none;
+}
+
+.resource-info a:hover {
+   color: #666;
+}
  #team_section {
     display: flex;
     flex-wrap: wrap;
