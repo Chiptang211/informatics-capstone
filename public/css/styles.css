@@ -589,6 +589,42 @@ html {
    margin-top: 50px;
 }
 
+.popup {
+   display: none; /* Hidden by default */
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+   justify-content: center;
+   align-items: center;
+   z-index: 9999;
+}
+
+.popup-content {
+   position: relative; /* Parent positioning for the close button */
+   background-color: #fff;
+   padding: 20px;
+   border-radius: 5px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+   max-width: 400px;
+   width: 90%;
+   text-align: center;
+}
+
+.close-btn {
+   position: absolute; /* Positioned relative to the pop-up content */
+   right: 10px;
+   top: 10px;
+   cursor: pointer;
+   font-size: 24px;
+   color: #333; /* Contrast with the white background */
+   background-color: #fff; /* Give it a background color */
+   padding: 1px 6px; /* Adjust size as needed */
+   z-index: 10000; /* Ensure the button is clickable */
+}
+
 
 @media (max-width: 768px) {
     .statistics-header-container {

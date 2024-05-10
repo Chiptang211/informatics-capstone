@@ -11,7 +11,6 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">   
     </head>
-    
     <body>
         <header role="banner">
             <div class="navbar-container">
@@ -28,6 +27,12 @@
                 </nav>
             </div>
         </header>
+        <div id="announcement-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn" id="close-popup">&times;</span>
+                <p>Our project is transitioning to open source on May 14th, 2024!</p>
+            </div>
+        </div>
 
         <main>
             <div class="disease-monitoring">
@@ -39,7 +44,7 @@
                         <input type="text" id="zipcode-input" name="query" placeholder="Enter your zipcode...">
                         <button type="submit">Search</button>
                     </form>
-                    <h3>Our project is transitioning to open source on May 14st, 2024! </h3>
+                    
                 </div>
                 <div class="img-container">
                     <img src="img/geohealthicon.png" alt="GeoHealth Logo">
