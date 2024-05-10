@@ -88,18 +88,28 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderChart(data) {
         const ctx = document.getElementById('particulateChart').getContext('2d');
         const groupedData = {};
+    
+        // Group data by full date (month/day/year)
         data.forEach(item => {
-            const date = new Date(item.date_end).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            const date = new Date(item.date_end).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
             groupedData[date] = groupedData[date] || [];
             groupedData[date].push(item.covid_level);
         });
-
+    
+        // Sort dates in ascending order by full date
         const dates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
+    
+        // Calculate average COVID levels for each date
         const covidLevels = dates.map(date => {
             const levels = groupedData[date];
             return levels.reduce((acc, level) => acc + level, 0) / levels.length;
         });
-
+    
+        // Render the chart
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -107,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'COVID Level Over Time',
                     data: covidLevels,
-                    borderColor: '#675AFF',  // Purple color
-                    backgroundColor: '#675AFF',  
+                    borderColor: '#675AFF',
+                    backgroundColor: '#675AFF',
                     fill: false,
                     tension: 0.1,
                     pointRadius: 5
@@ -123,6 +133,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    
+    
 
     function initMap(zipcode) {
 
