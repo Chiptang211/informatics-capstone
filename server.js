@@ -71,18 +71,18 @@ async function calculateRisk() {
 
             const average = smoothData[row.facility_cdc_id].reduce((a, b) => a + (b || 0), 0) / smoothData[row.facility_cdc_id].length;
             const pcrConcSmoothed = isNaN(average) ? null : average;
-/*
+
             // Determine the risk score based on smoothed PCR concentration
             let riskScore;
             if (pcrConcSmoothed <= 25) {
-                riskScore = "low";
+                riskScore = "high";
             } else if (pcrConcSmoothed <= 75) {
-                riskScore = "mid";
+                riskScore = "high";
             } else {
                 riskScore = "high";
             }
-*/
-            riskscore = "high"
+
+
             // Store the latest risk score for each plant
             riskScores[row.facility_cdc_id] = { score: riskScore, date: row.date_start };
 
