@@ -75,9 +75,9 @@ async function calculateRisk() {
             // Determine the risk score based on smoothed PCR concentration
             let riskScore;
             if (pcrConcSmoothed <= 25) {
-                riskScore = "high";
+                riskScore = "low";
             } else if (pcrConcSmoothed <= 75) {
-                riskScore = "high";
+                riskScore = "mid";
             } else {
                 riskScore = "high";
             }
