@@ -11,12 +11,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 async function getDBConnection() {
-  const db = await sqlite.open({
-      filename: 'data.db',
-      driver: sqlite3.Database
-  });
+    const db = await sqlite.open({
+        filename: 'data.db',
+        driver: sqlite3.Database
+    });
 
-  return db;
+    return db;
 }
 
 function getDates(startDate, endDate) {
@@ -49,51 +49,85 @@ async function fetchConcentrationData(date) {
 async function calculateRisk() {
     const db = await getDBConnection();
     try {
-        // Fetch all data for calculation, ordered by plant and date
-        const rows = await db.all(`SELECT covid_id, facility_cdc_id, percent_change, date_start FROM covid_wastewater ORDER BY facility_cdc_id, date_start`);
+        const rows = await db.all(`
+            SELECT covid_id, facility_cdc_id, percent_change, date_start 
+            FROM covid_wastewater 
+            WHERE risk_score IS NULL
+            ORDER BY facility_cdc_id, date_start
+        `);
 
-        // To hold smoothed values for each plant
+        const totalRows = rows.length;
+        let processedRows = 0;
+
         const smoothData = {};
+        const trends = {};
         const riskScores = {};
 
-        rows.forEach(row => {
+        for (const row of rows) {
             if (!smoothData[row.facility_cdc_id]) {
-                smoothData[row.facility_cdc_id] = []; // Initialize array for new plants
+                smoothData[row.facility_cdc_id] = [];
+                trends[row.facility_cdc_id] = { x: [], y: [], index: 0 };
             }
 
-            // Push current percent_change into the array for the plant
-            smoothData[row.facility_cdc_id].push(row.percent_change);
+            // Collect data for trend analysis
+            trends[row.facility_cdc_id].x.push(trends[row.facility_cdc_id].index++);
+            trends[row.facility_cdc_id].y.push(row.percent_change);
 
-            // Calculate smoothed value using a simple moving average, considering only the last 3 values
+            // Smooth the data
+            smoothData[row.facility_cdc_id].push(row.percent_change);
             if (smoothData[row.facility_cdc_id].length > 3) {
-                smoothData[row.facility_cdc_id].shift(); // Remove the oldest entry if more than 3
+                smoothData[row.facility_cdc_id].shift(); // Maintain a window of the last 3 entries
             }
 
             const average = smoothData[row.facility_cdc_id].reduce((a, b) => a + (b || 0), 0) / smoothData[row.facility_cdc_id].length;
             const pcrConcSmoothed = isNaN(average) ? null : average;
 
-            // Determine the risk score based on smoothed PCR concentration
-            let riskScore;
-            if (pcrConcSmoothed <= 25) {
-                riskScore = "low";
-            } else if (pcrConcSmoothed <= 75) {
-                riskScore = "mid";
-            } else {
-                riskScore = "high";
+            // Trend calculation using linear regression
+            if (trends[row.facility_cdc_id].x.length >= 3) {
+                const { slope } = linearRegression(trends[row.facility_cdc_id].y, trends[row.facility_cdc_id].x);
+                const trend = slope >= 0 ? 'increasing' : 'decreasing';
+
+                // Determine the risk score based on trend and smoothed PCR concentration
+                let riskScore;
+                if (pcrConcSmoothed <= 25 && trend === 'decreasing') {
+                    riskScore = "low";
+                } else if ((pcrConcSmoothed <= 75 && trend === 'decreasing') || (pcrConcSmoothed <= 50 && trend === 'increasing')) {
+                    riskScore = "mid";
+                } else {
+                    riskScore = "high";
+                }
+
+                // Store the risk score
+                riskScores[row.covid_id] = { score: riskScore, date: row.date_start, trend };
+
+                // Update the database with the calculated risk score
+                await db.run(`
+                    UPDATE covid_wastewater
+                    SET risk_score = ?, pcr_conc_smoothed = ?
+                    WHERE covid_id = ? AND risk_score IS NULL
+                `, [riskScore, pcrConcSmoothed, row.covid_id]);
             }
 
-
-            // Store the latest risk score for each plant
-            riskScores[row.facility_cdc_id] = { score: riskScore, date: row.date_start };
-
-            // Update database with smoothed value and risk score
-            db.run(`UPDATE covid_wastewater SET pcr_conc_smoothed = ?, risk_score = ? WHERE covid_id = ?`, [pcrConcSmoothed, riskScore, row.covid_id]);
-        });
+            processedRows++;
+            if (processedRows % 100 === 0 || processedRows === totalRows) {
+                console.log(`Processed ${processedRows}/${totalRows} rows (${((processedRows / totalRows) * 100).toFixed(2)}%)`);
+            }
+        }
 
         console.log('Latest risk scores:', riskScores);
     } catch (error) {
-        console.error('Error calculating smoothed PCR concentrations or updating risk scores:', error);
+        console.error('Error calculating risk scores:', error);
     }
+}
+
+function linearRegression(y, x) {
+    const n = y.length;
+    const sumX = x.reduce((a, b) => a + b, 0);
+    const sumY = y.reduce((a, b) => a + b, 0);
+    const sumXY = x.reduce((acc, cur, i) => acc + (cur * y[i]), 0);
+    const sumXX = x.reduce((acc, cur) => acc + (cur * cur), 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    return { slope };
 }
 
 app.post('/update/covid', async (req, res) => {
@@ -119,9 +153,11 @@ app.post('/update/covid', async (req, res) => {
     }
 
     const dates = getDates(startDate, endDate);
+    const totalDates = dates.length;
 
     try {
         const db = await getDBConnection();
+        let processedDates = 0;
 
         for (const date of dates) {
             const metricData = await fetchMetricData(date);
@@ -170,11 +206,16 @@ app.post('/update/covid', async (req, res) => {
                 ]);
             }
 
-
-            calculateRisk();
+            // Log progress
+            processedDates++;
+            if (processedDates % 1 === 0 || processedDates === totalDates) {
+                console.log(`Processed ${processedDates}/${totalDates} dates (${((processedDates / totalDates) * 100).toFixed(2)}%)`);
+            }
         }
 
-        res.status(200).json({ 
+        calculateRisk();
+
+        res.status(200).json({
             message: `Data fetched and inserted successfully for dates from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}.`
         });
     } catch (error) {
@@ -182,6 +223,7 @@ app.post('/update/covid', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch or insert data into the database.' });
     }
 });
+
 
 app.post('/delete/covid', async (req, res) => {
     try {
@@ -328,9 +370,18 @@ app.post('/update/feedback', async (req, res) => {
     }
 });
 
+app.post('/update/risk/covid', async (req, res) => {
+    try {
+        await calculateRisk();
+        res.status(200).json({ message: "Risk calculation executed successfully." });
+    } catch (error) {
+        console.error('Error executing risk calculation:', error);
+        res.status(500).json({ error: 'Failed to execute risk calculation.' });
+    }
+});
 
 app.use(express.static('public'));
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
